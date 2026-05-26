@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,orientation=landscape">
+<title>Cricket Pro</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0d12;color:#fff;font-family:'Arial Black',Arial,sans-serif}
+#app{width:100%;height:100%;position:relative}
+.scr{position:absolute;inset:0;display:none;overflow:hidden}
+.scr.on{display:flex}
+
+/* ---- FONTS & UTILS ---- */
+.gold{color:#ffd700}.grn{color:#4eff88}.red{color:#ff4444}.muted{color:#888}
+.btn{border:none;border-radius:10px;font-weight:bold;cursor:pointer;letter-spacing:.5px;transition:transform .1s,opacity .1s}
+.btn:active{transform:scale(.94);opacity:.85}
+.btn-gold{background:linear-gradient(135deg,#ffd700,#e09000);color:#1a0800;font-size:13px;padding:10px 22px}
+.btn-green{background:linear-gradient(135deg,#27ae60,#145a32);color:#fff;font-size:13px;padding:10px 22px}
+.btn-red{background:linear-gradient(135deg,#c0392b,#7b241c);color:#fff;font-size:12px;padding:8px 18px}
+.btn-ghost{background:transparent;border:1.5px solid #ffffff55;color:#ccc;font-size:12px;padding:8px 16px}
+.badge{font-size:9px;font-weight:bold;padding:2px 6px;border-radius:4px}
+.b-bat{background:#003399;color:#88aaff}
+.b-bowl{background:#660000;color:#ff9999}
+.b-all{background:#004400;color:#88ff99}
+.b-wk{background:#440066;color:#dd88ff}
+
+/* ===================== SPLASH / MENU ===================== */
+#s-menu{flex-direction:row;background:#060b10}
+#menuLeft{width:55%;position:relative;overflow:hidden}
+#menuLeft canvas{width:100%;height:100%;display:block}
+#menuRight{width:45%;display:flex;flex-direction:column;justify-content:center;padding:20px 18px;gap:14px;background:linear-gradient(90deg,transparent,#0a0d14)}
+.logo-title{font-size:22px;color:#ffd700;letter-spacing:3px;text-transform:uppercase;text-shadow:0 0 18px #ffd70099;margin-bottom:4px}
+.logo-sub{font-size:10px;color:#88aaff;letter-spacing:2px;margin-bottom:10px}
+.menu-btn{width:100%;padding:11px;text-align:left;padding-left:14px;background:#ffffff0d;border:1px solid #ffffff1a;border-radius:10px;color:#fff;font-size:12px;font-weight:bold;cursor:pointer;display:flex;align-items:center;gap:10px;transition:background .15s,border-color .15s}
+.menu-btn:hover{background:#ffd70015;border-color:#ffd70055}
+.menu-btn .mico{font-size:18px}
+
+/* ===================== SETUP ===================== */
+#s-setup{flex-direction:column;background:#0a0d14}
+.top-bar{background:#0d1523;border-bottom:2px solid #ffd700;padding:8px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.top-bar h2{font-size:15px;color:#ffd700;flex:1}
+.back-btn{background:none;border:none;color:#888;font-size:20px;cursor:pointer;padding:0 4px}
+.setup-body{flex:1;display:flex;overflow:hidden}
+.setup-col{flex:1;overflow-y:auto;padding:10px;border-right:1px solid #ffffff11}
+.setup-col:last-child{border-right:none}
+.sec-title{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px}
+.t-card{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#ffffff0d;border:1.5px solid transparent;border-radius:8px;cursor:pointer;margin-bottom:6px;transition:all .15s}
+.t-card.sel{border-color:#ffd700;background:#ffd70018}
+.t-card .flag{font-size:20px}
+.t-card .tname{font-size:12px;font-weight:bold}
+.t-card .tabbr{font-size:9px;color:#888}
+.fmt-row{display:flex;gap:6px}
+.fmt-btn{flex:1;padding:9px 4px;background:#ffffff0d;border:1.5px solid transparent;border-radius:8px;text-align:center;cursor:pointer;font-size:11px;font-weight:bold;color:#ccc;transition:all .15s}
+.fmt-btn.sel{border-color:#ffd700;color:#ffd700;background:#ffd70015}
+.difficulty-row{display:flex;gap:6px}
+.diff-btn{flex:1;padding:8px 4px;border:1.5px solid transparent;border-radius:8px;text-align:center;cursor:pointer;font-size:10px;font-weight:bold;transition:all .15s}
+.diff-easy{background:#00440015;color:#88ff88;border-color:#00440044}
+.diff-easy.sel{border-color:#4eff88;background:#00440033}
+.diff-med{background:#44440015;color:#ffaa44;border-color:#44440044}
+.diff-med.sel{border-color:#ffaa44;background:#44440033}
+.diff-hard{background:#44000015;color:#ff6644;border-color:#44000044}
+.diff-hard.sel{border-color:#ff6644;background:#44000033}
+
+/* ===================== TOSS ===================== */
+#s-toss{flex-direction:column;justify-content:center;align-items:center;text-align:center;background:radial-gradient(circle at 50% 40%,#0d2233,#060b10);gap:14px}
+.coin-3d{width:80px;height:80px;border-radius:50%;background:conic-gradient(#ffd700,#a06000,#ffd700,#a06000,#ffd700);display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 24px #ffd70066}
+.coin-3d.spin{animation:cspin 1.2s ease-out}
+@keyframes cspin{0%{transform:rotateY(0) scale(1)}50%{transform:rotateY(900deg) scale(.8)}100%{transform:rotateY(1440deg) scale(1)}}
+.toss-btns{display:flex;gap:12px}
+
+/* ===================== MATCH (LANDSCAPE) ===================== */
+#s-match{flex-direction:row;background:#060b10}
+
+/* LEFT: Pitch + scorebar */
+#matchLeft{width:62%;display:flex;flex-direction:column;position:relative}
+.score-hud{background:#0d1523;padding:5px 10px;border-bottom:1px solid #ffd70044;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.hud-score{font-size:22px;font-weight:bold;color:#ffd700;line-height:1}
+.hud-detail{font-size:9px;color:#888}
+.hud-mid{text-align:center}
+.hud-mid .team-flag{font-size:16px}
+.hud-mid .rr{font-size:10px;color:#88aaff}
+.hud-right{text-align:right}
+.hud-right .target{font-size:10px;color:#4eff88}
+.hud-right .rrr{font-size:10px;color:#ff8844}
+
+.pitch-wrap{flex:1;position:relative;overflow:hidden}
+#pCanvas{width:100%;height:100%;display:block}
+.deli-tag{position:absolute;top:6px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);border:1px solid #ffd70066;padding:4px 12px;border-radius:12px;font-size:10px;white-space:nowrap;display:none;z-index:5}
+.ball-result{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.95);border:2px solid #ffd700;border-radius:12px;padding:12px 20px;text-align:center;display:none;animation:pop .25s ease;z-index:10}
+.ball-result.wkt{border-color:#ff4444}
+@keyframes pop{from{transform:translate(-50%,-50%) scale(.4);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.res-runs{font-size:40px;font-weight:bold;color:#ffd700}
+.res-runs.wkt{color:#ff4444;font-size:28px}
+.res-txt{font-size:10px;color:#aaa;margin-top:2px}
+
+/* Aim overlay */
+#aimOv{position:absolute;inset:0;display:none;z-index:20;flex-direction:column;background:rgba(0,0,0,.8)}
+#aimOv.on{display:flex}
+.aim-title{padding:6px;text-align:center;font-size:11px;color:#ffd700;background:rgba(0,0,0,.5)}
+#aCanvas{flex:1;display:block;width:100%}
+.aim-footer{padding:6px;display:flex;justify-content:center;background:rgba(0,0,0,.5)}
+
+/* Batsmen strip */
+.batsmen-strip{background:#0a1020;padding:4px 10px;border-top:1px solid #ffffff11;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.bat-info{font-size:10px}
+.bat-info .name{font-weight:bold;color:#fff}
+.bat-info .stat{color:#888;font-size:9px}
+.bat-info.on-strike .name{color:#ffd700}
+.bowler-info{font-size:9px;color:#888;text-align:center}
+.over-balls{display:flex;gap:3px;margin-top:2px;justify-content:center}
+.ob{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:bold;background:#ffffff11;color:#ccc}
+.ob.four{background:#004488;color:#88aaff}
+.ob.six{background:#440000;color:#ff8888}
+.ob.wkt{background:#440000;color:#ff4444}
+.ob.dot{background:#222}
+.ob.extra{background:#334400;color:#aaff44}
+
+/* Commentary */
+.comm-box{background:#080d18;padding:4px 10px;border-top:1px solid #ffffff0f;max-height:44px;overflow:hidden;flex-shrink:0}
+.comm-line{font-size:9px;color:#aaa;line-height:1.6}
+.comm-line.new{color:#fff;font-weight:bold}
+
+/* RIGHT: Controls */
+#matchRight{width:38%;display:flex;flex-direction:column;background:#0a0f1c;border-left:1px solid #ffffff0f}
+
+/* Shot panel */
+.panel-title{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:1px;text-align:center;padding:5px 0 3px;border-bottom:1px solid #ffffff0f}
+.shot-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;padding:6px}
+.shot-btn{padding:9px 4px;background:#ffffff0d;border:1px solid #ffffff1a;border-radius:8px;color:#fff;font-size:9px;font-weight:bold;text-align:center;cursor:pointer;line-height:1.5;transition:background .1s}
+.shot-btn:active{background:#ffd70033;border-color:#ffd700}
+.shot-btn .ico{font-size:16px;display:block}
+.bowl-btn{padding:9px 4px;background:#ff440011;border:1px solid #ff44441a;border-radius:8px;color:#fff;font-size:9px;font-weight:bold;text-align:center;cursor:pointer;line-height:1.5;transition:background .1s}
+.bowl-btn:active{background:#ff6633;border-color:#ff8866}
+.bowl-btn .ico{font-size:16px;display:block}
+
+/* Extra actions */
+.extra-row{display:flex;gap:4px;padding:0 6px 6px}
+.extra-btn{flex:1;padding:6px 4px;background:#ffffff08;border:1px solid #ffffff15;border-radius:6px;color:#aaa;font-size:9px;text-align:center;cursor:pointer}
+.extra-btn:active{background:#ffffff1a}
+
+/* Player card side panel */
+#playerCardPanel{flex:1;overflow-y:auto;display:none;flex-direction:column}
+#playerCardPanel.on{display:flex}
+#gamePanel{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#gamePanel.off{display:none}
+
+/* ===================== PLAYER CARD ===================== */
+.pc-header{background:linear-gradient(135deg,#0d1a2e,#162840);padding:10px;display:flex;gap:10px;border-bottom:1px solid #ffffff0f;align-items:flex-start}
+.pc-avatar{width:52px;height:52px;border-radius:50%;overflow:hidden;border:2px solid #ffd700;flex-shrink:0;position:relative}
+.pc-avatar canvas{width:52px;height:52px}
+.pc-meta{flex:1;min-width:0}
+.pc-name{font-size:13px;font-weight:bold;color:#ffd700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-team{font-size:9px;color:#888;margin-bottom:4px}
+.pc-badges{display:flex;gap:4px;flex-wrap:wrap}
+.pc-body{padding:8px;display:flex;flex-direction:column;gap:6px}
+.stat-row{display:flex;justify-content:space-between;align-items:center}
+.stat-label{font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.5px}
+.stat-bar-wrap{flex:1;height:6px;background:#ffffff11;border-radius:3px;margin:0 8px;overflow:hidden}
+.stat-bar{height:100%;border-radius:3px;transition:width .5s ease}
+.stat-val{font-size:10px;font-weight:bold;min-width:24px;text-align:right}
+.trait-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;margin-top:4px}
+.trait{padding:5px 6px;background:#ffffff08;border-radius:6px;border:1px solid #ffffff0f}
+.trait-name{font-size:8px;color:#888;text-transform:uppercase}
+.trait-val{font-size:11px;font-weight:bold}
+.mood-row{display:flex;align-items:center;gap:6px;padding:5px 0}
+.mood-ico{font-size:18px}
+.mood-txt{font-size:10px;color:#ccc}
+.form-dots{display:flex;gap:3px}
+.fdot{width:10px;height:10px;border-radius:50%}
+
+/* ===================== INNINGS BREAK ===================== */
+#s-brk{flex-direction:column;justify-content:center;align-items:center;text-align:center;background:radial-gradient(circle at 50% 30%,#0d2233,#060b10);gap:12px}
+
+/* ===================== RESULT ===================== */
+#s-res{flex-direction:column;justify-content:center;align-items:center;text-align:center;background:radial-gradient(circle at 50% 30%,#1a2200,#060b10);gap:10px;padding:20px}
+
+/* ===================== STATS ===================== */
+#s-stats{flex-direction:column;background:#0a0d14}
+.stab-row{display:flex;background:#0d1523;border-bottom:2px solid #ffd70033;flex-shrink:0}
+.stab{flex:1;padding:9px 4px;background:transparent;border:none;color:#666;font-size:9px;font-weight:bold;cursor:pointer;text-transform:uppercase;border-bottom:2px solid transparent;letter-spacing:.5px}
+.stab.on{color:#ffd700;border-bottom-color:#ffd700}
+.stat-pane{display:none;flex:1;overflow-y:auto;padding:10px}
+.stat-pane.on{display:block}
+.sc-tbl{width:100%;border-collapse:collapse;font-size:10px}
+.sc-tbl th{color:#666;text-transform:uppercase;font-size:8px;padding:4px 3px;border-bottom:1px solid #333;text-align:left}
+.sc-tbl td{padding:4px 3px;border-bottom:1px solid #ffffff08;color:#ccc}
+.sc-tbl td:first-child{color:#fff}
+
+/* ===================== PROFILE ===================== */
+#s-profile{flex-direction:row;background:#0a0d14}
+#profileList{width:40%;overflow-y:auto;border-right:1px solid #ffffff0f}
+#profileDetail{width:60%;overflow-y:auto;padding:12px}
+.p-list-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #ffffff08;cursor:pointer;transition:background .15s}
+.p-list-item:hover,.p-list-item.sel{background:#ffd70010}
+.p-list-avatar{width:32px;height:32px;border-radius:50%;overflow:hidden;border:1.5px solid #ffffff22;flex-shrink:0}
+.p-list-avatar canvas{width:32px;height:32px}
+.p-list-name{font-size:11px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p-list-meta{font-size:9px;color:#666}
+.big-avatar{width:90px;height:90px;border-radius:50%;overflow:hidden;border:3px solid #ffd700;margin:0 auto 10px}
+.big-avatar canvas{width:90px;height:90px}
+.radar-wrap{display:flex;justify-content:center;margin:8px 0}
+#radarCanvas{display:block}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- MENU -->
+<div class="scr on" id="s-menu">
+  <div id="menuLeft"><canvas id="menuCanvas"></canvas></div>
+  <div id="menuRight">
+    <div class="logo-title">🏏 Cricket Pro</div>
+    <div class="logo-sub">CHAMPIONSHIP EDITION 2024</div>
+    <button class="menu-btn" onclick="gotoSetup()"><span class="mico">▶</span>Play Match</button>
+    <button class="menu-btn" onclick="gotoProfiles()"><span class="mico">👤</span>Player Profiles</button>
+    <button class="menu-btn" onclick="openStats()"><span class="mico">📊</span>Statistics</button>
+    <div style="font-size:9px;color:#444;margin-top:6px;text-align:center">Tap to play in landscape</div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div class="scr" id="s-setup">
+  <div style="display:flex;flex-direction:column;width:100%">
+    <div class="top-bar"><button class="back-btn" onclick="go('s-menu')">‹</button><h2>Match Setup</h2><button class="btn btn-gold" onclick="beginToss()">Proceed →</button></div>
+    <div class="setup-body">
+      <div class="setup-col">
+        <div class="sec-title">Your Team</div>
+        <div id="tc1"></div>
+      </div>
+      <div class="setup-col">
+        <div class="sec-title">Opponent Team</div>
+        <div id="tc2"></div>
+      </div>
+      <div class="setup-col">
+        <div class="sec-title">Format</div>
+        <div class="fmt-row" style="margin-bottom:12px">
+          <div class="fmt-btn sel" onclick="setFmt(this,'T20')">T20<div style="font-size:8px;opacity:.6">20 Overs</div></div>
+          <div class="fmt-btn" onclick="setFmt(this,'ODI')">ODI<div style="font-size:8px;opacity:.6">50 Overs</div></div>
+          <div class="fmt-btn" onclick="setFmt(this,'Test')">Test<div style="font-size:8px;opacity:.6">90 Overs</div></div>
+        </div>
+        <div class="sec-title">Difficulty</div>
+        <div class="difficulty-row">
+          <div class="diff-btn diff-easy sel" onclick="setDiff(this,'easy')">Easy</div>
+          <div class="diff-btn diff-med" onclick="setDiff(this,'med')">Medium</div>
+          <div class="diff-btn diff-hard" onclick="setDiff(this,'hard')">Hard</div>
+        </div>
+        <div id="selectedTeams" style="margin-top:14px;padding:10px;background:#ffffff08;border-radius:8px;font-size:10px;color:#888">Select teams above</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOSS -->
+<div class="scr" id="s-toss">
+  <div style="font-size:13px;color:#888;letter-spacing:2px">TOSS</div>
+  <div class="coin-3d" id="coin">🏏</div>
+  <div id="tmsg" style="font-size:12px;color:#ccc">Call the toss!</div>
+  <div id="tchoice-btns" class="toss-btns">
+    <button class="btn btn-gold" onclick="doToss('heads')">Heads</button>
+    <button class="btn btn-ghost" onclick="doToss('tails')">Tails</button>
+  </div>
+  <div id="tbf-btns" style="display:none;text-align:center">
+    <div id="tres" style="color:#ffd700;font-size:12px;margin-bottom:12px"></div>
+    <div class="toss-btns">
+      <button class="btn btn-gold" onclick="pickBatBowl('bat')">🏏 Bat First</button>
+      <button class="btn btn-green" onclick="pickBatBowl('bowl')">🎯 Bowl First</button>
+    </div>
+  </div>
+</div>
+
+<!-- MATCH -->
+<div class="scr" id="s-match">
+  <!-- LEFT: Pitch -->
+  <div id="matchLeft">
+    <div class="score-hud">
+      <div>
+        <div class="hud-score" id="sbsc">0/0</div>
+        <div class="hud-detail" id="sbov">0.0 ov</div>
+      </div>
+      <div class="hud-mid">
+        <div class="team-flag" id="sbn">🏏</div>
+        <div class="rr" id="sbrr">RR: 0.00</div>
+      </div>
+      <div class="hud-right">
+        <div class="target" id="sbtgt"></div>
+        <div class="rrr" id="sbrrr"></div>
+        <button class="btn btn-ghost" style="font-size:8px;padding:3px 8px;margin-top:2px" onclick="openStats()">📊 Stats</button>
+      </div>
+    </div>
+    <div class="pitch-wrap">
+      <canvas id="pCanvas"></canvas>
+      <div class="deli-tag" id="delinf"></div>
+      <div class="ball-result" id="brespop"></div>
+      <div id="aimOv">
+        <div class="aim-title">TAP TO AIM YOUR DELIVERY</div>
+        <canvas id="aCanvas"></canvas>
+        <div class="aim-footer"><button class="btn btn-red" onclick="cancelAim()">✕ Cancel</button></div>
+      </div>
+    </div>
+    <div class="batsmen-strip">
+      <div class="bat-info" id="bi1"></div>
+      <div class="bowler-info">
+        <div id="bowlname" style="color:#88aaff;font-size:9px"></div>
+        <div class="over-balls" id="overBalls"></div>
+      </div>
+      <div class="bat-info" id="bi2" style="text-align:right"></div>
+    </div>
+    <div class="comm-box" id="cbox"></div>
+  </div>
+
+  <!-- RIGHT: Controls -->
+  <div id="matchRight">
+    <div id="gamePanel">
+      <div class="panel-title" id="panelTitle">Choose Your Shot</div>
+      <div id="shotGrid" class="shot-grid"></div>
+      <div id="bowlGrid" class="shot-grid" style="display:none"></div>
+      <div class="extra-row" id="extraRow">
+        <div class="extra-btn" onclick="peekCard()">👤 Players</div>
+        <div class="extra-btn" id="leaveBtn" onclick="leaveShot()" style="display:none">🛡 Defend</div>
+      </div>
+    </div>
+    <div id="playerCardPanel">
+      <div style="display:flex;align-items:center;padding:6px 8px;border-bottom:1px solid #ffffff0f">
+        <button class="btn btn-ghost" style="font-size:9px;padding:4px 8px" onclick="closePeek()">‹ Back</button>
+        <span style="font-size:10px;color:#888;margin-left:8px">Playing XI</span>
+      </div>
+      <div id="peekList" style="overflow-y:auto;flex:1"></div>
+    </div>
+  </div>
+</div>
+
+<!-- INNINGS BREAK -->
+<div class="scr" id="s-brk">
+  <div style="font-size:44px">🏏</div>
+  <div style="font-size:18px;color:#ffd700;font-weight:bold">INNINGS BREAK</div>
+  <div id="brksumm" style="color:#ccc;font-size:12px;line-height:2"></div>
+  <button class="btn btn-gold" onclick="startInnings2()">2nd Innings →</button>
+</div>
+
+<!-- RESULT -->
+<div class="scr" id="s-res">
+  <div id="rtroph" style="font-size:64px">🏆</div>
+  <div id="rwinner" style="font-size:20px;font-weight:bold;color:#ffd700"></div>
+  <div id="rdetail" style="color:#888;font-size:11px;line-height:2;max-width:400px"></div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-ghost" onclick="go('s-menu')">Menu</button>
+    <button class="btn btn-gold" onclick="openStats()">Scorecard</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="scr" id="s-stats">
+  <div class="top-bar"><button class="back-btn" onclick="closeStats()">‹</button><h2>Match Statistics</h2></div>
+  <div class="stab-row">
+    <button class="stab on" onclick="showTab('tp-man',this)">Manhattan</button>
+    <button class="stab" onclick="showTab('tp-wag',this)">Wagon Wheel</button>
+    <button class="stab" onclick="showTab('tp-sc',this)">Scorecard</button>
+  </div>
+  <div class="stat-pane on" id="tp-man"><canvas id="mCanvas" style="display:block;width:100%;height:200px"></canvas></div>
+  <div class="stat-pane" id="tp-wag"><canvas id="wCanvas" style="display:block;margin:0 auto"></canvas></div>
+  <div class="stat-pane" id="tp-sc"><div id="sccont"></div></div>
+</div>
+
+<!-- PROFILES -->
+<div class="scr" id="s-profile">
+  <div id="profileList">
+    <div class="top-bar"><button class="back-btn" onclick="go('s-menu')">‹</button><h2>Players</h2></div>
+    <div id="pListInner"></div>
+  </div>
+  <div id="profileDetail">
+    <div id="profileContent" style="text-align:center;color:#444;padding:30px;font-size:12px">Select a player</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ===================== TEAMS DATA =====================
+const TDATA=[
+ {name:'India',abbr:'IND',flag:'🇮🇳',col:'#003580',kit:'#003580',players:[
+  {name:'Rohit Sharma',role:'BAT',bat:90,bowl:20,wk:false,age:36,country:'India',style:'Right-hand Bat',hair:3,skin:3,face:1,mood:4,form:[1,1,1,0,1],traits:{aggression:82,consistency:88,pressure:90,fitness:85}},
+  {name:'Shubman Gill',role:'BAT',bat:85,bowl:10,wk:false,age:24,country:'India',style:'Right-hand Bat',hair:2,skin:3,face:2,mood:5,form:[1,1,0,1,1],traits:{aggression:75,consistency:82,pressure:78,fitness:92}},
+  {name:'Virat Kohli',role:'BAT',bat:95,bowl:15,wk:false,age:35,country:'India',style:'Right-hand Bat',hair:1,skin:3,face:3,mood:5,form:[1,1,1,1,0],traits:{aggression:90,consistency:96,pressure:97,fitness:95}},
+  {name:'Suryakumar Yadav',role:'BAT',bat:88,bowl:10,wk:false,age:33,country:'India',style:'Right-hand Bat',hair:0,skin:3,face:0,mood:4,form:[0,1,1,1,1],traits:{aggression:95,consistency:82,pressure:85,fitness:90}},
+  {name:'KL Rahul',role:'WK',bat:82,bowl:10,wk:true,age:32,country:'India',style:'Right-hand Bat',hair:2,skin:3,face:1,mood:3,form:[1,0,1,0,1],traits:{aggression:70,consistency:80,pressure:82,fitness:88}},
+  {name:'Hardik Pandya',role:'ALL',bat:75,bowl:75,wk:false,age:30,country:'India',style:'Right-hand Bat',hair:1,skin:3,face:2,mood:4,form:[1,1,0,1,1],traits:{aggression:88,consistency:72,pressure:80,fitness:86}},
+  {name:'Ravindra Jadeja',role:'ALL',bat:70,bowl:85,wk:false,age:35,country:'India',style:'Left-hand Bat',hair:0,skin:3,face:0,mood:5,form:[1,1,1,1,1],traits:{aggression:72,consistency:88,pressure:86,fitness:94}},
+  {name:'R Ashwin',role:'ALL',bat:55,bowl:88,wk:false,age:37,country:'India',style:'Right-hand Bat',hair:3,skin:3,face:3,mood:4,form:[1,0,1,1,0],traits:{aggression:60,consistency:90,pressure:88,fitness:80}},
+  {name:'Mohammed Shami',role:'BOWL',bat:20,bowl:90,wk:false,age:33,country:'India',style:'Right-hand Bat',hair:2,skin:3,face:1,mood:4,form:[1,1,0,1,1],traits:{aggression:86,consistency:84,pressure:82,fitness:85}},
+  {name:'Jasprit Bumrah',role:'BOWL',bat:15,bowl:95,wk:false,age:30,country:'India',style:'Right-hand Bat',hair:1,skin:3,face:2,mood:5,form:[1,1,1,1,1],traits:{aggression:88,consistency:95,pressure:96,fitness:92}},
+  {name:'Mohammed Siraj',role:'BOWL',bat:12,bowl:82,wk:false,age:30,country:'India',style:'Right-hand Bat',hair:0,skin:3,face:0,mood:3,form:[0,1,1,0,1],traits:{aggression:82,consistency:78,pressure:76,fitness:88}}
+ ]},
+ {name:'Australia',abbr:'AUS',flag:'🇦🇺',col:'#b8860b',kit:'#ffd700',players:[
+  {name:'David Warner',role:'BAT',bat:88,bowl:15,wk:false,age:37,country:'Australia',style:'Left-hand Bat',hair:3,skin:1,face:1,mood:4,form:[0,1,1,1,0],traits:{aggression:92,consistency:82,pressure:85,fitness:84}},
+  {name:'Travis Head',role:'BAT',bat:86,bowl:20,wk:false,age:30,country:'Australia',style:'Left-hand Bat',hair:2,skin:1,face:0,mood:5,form:[1,1,1,1,1],traits:{aggression:90,consistency:84,pressure:88,fitness:90}},
+  {name:'Steve Smith',role:'BAT',bat:95,bowl:30,wk:false,age:34,country:'Australia',style:'Right-hand Bat',hair:1,skin:1,face:3,mood:4,form:[1,0,1,1,1],traits:{aggression:72,consistency:96,pressure:95,fitness:86}},
+  {name:'Marnus Labuschagne',role:'BAT',bat:84,bowl:30,wk:false,age:29,country:'Australia',style:'Right-hand Bat',hair:0,skin:1,face:2,mood:4,form:[1,1,0,1,1],traits:{aggression:70,consistency:88,pressure:85,fitness:88}},
+  {name:'Glenn Maxwell',role:'ALL',bat:82,bowl:72,wk:false,age:35,country:'Australia',style:'Right-hand Bat',hair:3,skin:1,face:1,mood:5,form:[1,0,1,1,0],traits:{aggression:96,consistency:72,pressure:80,fitness:85}},
+  {name:'Alex Carey',role:'WK',bat:74,bowl:5,wk:true,age:33,country:'Australia',style:'Left-hand Bat',hair:2,skin:1,face:0,mood:3,form:[0,1,0,1,1],traits:{aggression:68,consistency:76,pressure:78,fitness:86}},
+  {name:'Cameron Green',role:'ALL',bat:72,bowl:78,wk:false,age:24,country:'Australia',style:'Right-hand Bat',hair:1,skin:1,face:3,mood:4,form:[1,1,1,0,1],traits:{aggression:76,consistency:75,pressure:72,fitness:92}},
+  {name:'Mitchell Starc',role:'BOWL',bat:30,bowl:92,wk:false,age:34,country:'Australia',style:'Left-hand Bat',hair:0,skin:1,face:2,mood:4,form:[1,1,1,1,0],traits:{aggression:90,consistency:86,pressure:88,fitness:86}},
+  {name:'Josh Hazlewood',role:'BOWL',bat:18,bowl:90,wk:false,age:33,country:'Australia',style:'Right-hand Bat',hair:3,skin:1,face:1,mood:4,form:[1,0,1,1,1],traits:{aggression:80,consistency:90,pressure:88,fitness:84}},
+  {name:'Pat Cummins',role:'BOWL',bat:35,bowl:93,wk:false,age:30,country:'Australia',style:'Right-hand Bat',hair:2,skin:1,face:0,mood:5,form:[1,1,1,1,1],traits:{aggression:86,consistency:92,pressure:94,fitness:90}},
+  {name:'Adam Zampa',role:'BOWL',bat:20,bowl:85,wk:false,age:32,country:'Australia',style:'Right-hand Bat',hair:1,skin:1,face:3,mood:3,form:[0,1,1,0,1],traits:{aggression:70,consistency:84,pressure:82,fitness:82}}
+ ]},
+ {name:'England',abbr:'ENG',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',col:'#003082',kit:'#1a3c8f',players:[
+  {name:'Zak Crawley',role:'BAT',bat:82,bowl:10,wk:false,age:26,country:'England',style:'Right-hand Bat',hair:0,skin:1,face:0,mood:4,form:[1,0,1,1,0],traits:{aggression:78,consistency:76,pressure:74,fitness:88}},
+  {name:'Ben Duckett',role:'BAT',bat:83,bowl:10,wk:false,age:29,country:'England',style:'Left-hand Bat',hair:3,skin:1,face:2,mood:5,form:[1,1,1,0,1],traits:{aggression:84,consistency:80,pressure:78,fitness:90}},
+  {name:'Joe Root',role:'BAT',bat:93,bowl:65,wk:false,age:33,country:'England',style:'Right-hand Bat',hair:2,skin:1,face:1,mood:5,form:[1,1,1,1,1],traits:{aggression:74,consistency:96,pressure:94,fitness:88}},
+  {name:'Harry Brook',role:'BAT',bat:88,bowl:15,wk:false,age:25,country:'England',style:'Right-hand Bat',hair:1,skin:1,face:3,mood:5,form:[1,1,0,1,1],traits:{aggression:90,consistency:84,pressure:86,fitness:92}},
+  {name:'Ben Stokes',role:'ALL',bat:85,bowl:80,wk:false,age:33,country:'England',style:'Left-hand Bat',hair:0,skin:1,face:0,mood:4,form:[0,1,1,1,0],traits:{aggression:92,consistency:84,pressure:95,fitness:85}},
+  {name:'Jonny Bairstow',role:'WK',bat:80,bowl:5,wk:true,age:34,country:'England',style:'Right-hand Bat',hair:3,skin:1,face:2,mood:3,form:[1,0,0,1,1],traits:{aggression:86,consistency:76,pressure:80,fitness:84}},
+  {name:'Sam Curran',role:'ALL',bat:72,bowl:78,wk:false,age:26,country:'England',style:'Left-hand Bat',hair:2,skin:1,face:1,mood:4,form:[1,1,1,0,1],traits:{aggression:78,consistency:76,pressure:78,fitness:88}},
+  {name:'Mark Wood',role:'BOWL',bat:22,bowl:88,wk:false,age:34,country:'England',style:'Right-hand Bat',hair:1,skin:1,face:3,mood:4,form:[1,0,1,1,1],traits:{aggression:88,consistency:80,pressure:82,fitness:86}},
+  {name:'Stuart Broad',role:'BOWL',bat:30,bowl:88,wk:false,age:38,country:'England',style:'Right-hand Bat',hair:0,skin:1,face:0,mood:3,form:[1,1,0,1,0],traits:{aggression:80,consistency:88,pressure:88,fitness:80}},
+  {name:'James Anderson',role:'BOWL',bat:18,bowl:92,wk:false,age:41,country:'England',style:'Right-hand Bat',hair:3,skin:1,face:2,mood:4,form:[1,1,1,1,1],traits:{aggression:76,consistency:92,pressure:92,fitness:78}},
+  {name:'Adil Rashid',role:'BOWL',bat:28,bowl:84,wk:false,age:36,country:'England',style:'Right-hand Bat',hair:2,skin:2,face:1,mood:4,form:[0,1,1,0,1],traits:{aggression:72,consistency:82,pressure:80,fitness:82}}
+ ]},
+ {name:'Pakistan',abbr:'PAK',flag:'🇵🇰',col:'#006600',kit:'#006600',players:[
+  {name:'Mohammad Rizwan',role:'WK',bat:86,bowl:10,wk:true,age:31,country:'Pakistan',style:'Right-hand Bat',hair:1,skin:2,face:3,mood:5,form:[1,1,1,1,0],traits:{aggression:78,consistency:90,pressure:88,fitness:90}},
+  {name:'Babar Azam',role:'BAT',bat:94,bowl:5,wk:false,age:29,country:'Pakistan',style:'Right-hand Bat',hair:0,skin:2,face:0,mood:5,form:[1,1,1,1,1],traits:{aggression:76,consistency:96,pressure:94,fitness:92}},
+  {name:'Fakhar Zaman',role:'BAT',bat:84,bowl:10,wk:false,age:33,country:'Pakistan',style:'Left-hand Bat',hair:3,skin:2,face:2,mood:4,form:[0,1,1,0,1],traits:{aggression:90,consistency:78,pressure:80,fitness:86}},
+  {name:'Abdullah Shafiq',role:'BAT',bat:80,bowl:5,wk:false,age:24,country:'Pakistan',style:'Right-hand Bat',hair:2,skin:2,face:1,mood:4,form:[1,0,1,1,1],traits:{aggression:72,consistency:80,pressure:78,fitness:88}},
+  {name:'Iftikhar Ahmed',role:'ALL',bat:76,bowl:70,wk:false,age:33,country:'Pakistan',style:'Right-hand Bat',hair:1,skin:2,face:3,mood:3,form:[0,1,0,1,1],traits:{aggression:82,consistency:72,pressure:74,fitness:84}},
+  {name:'Shadab Khan',role:'ALL',bat:68,bowl:84,wk:false,age:25,country:'Pakistan',style:'Right-hand Bat',hair:0,skin:2,face:0,mood:4,form:[1,1,1,0,1],traits:{aggression:76,consistency:82,pressure:80,fitness:90}},
+  {name:'Imad Wasim',role:'ALL',bat:65,bowl:80,wk:false,age:35,country:'Pakistan',style:'Left-hand Bat',hair:3,skin:2,face:2,mood:3,form:[1,0,1,0,1],traits:{aggression:68,consistency:80,pressure:76,fitness:82}},
+  {name:'Naseem Shah',role:'BOWL',bat:22,bowl:88,wk:false,age:21,country:'Pakistan',style:'Right-hand Bat',hair:2,skin:2,face:1,mood:5,form:[1,1,1,1,1],traits:{aggression:88,consistency:82,pressure:80,fitness:92}},
+  {name:'Shaheen Afridi',role:'BOWL',bat:20,bowl:93,wk:false,age:24,country:'Pakistan',style:'Left-hand Bat',hair:1,skin:2,face:3,mood:5,form:[1,1,0,1,1],traits:{aggression:90,consistency:88,pressure:90,fitness:90}},
+  {name:'Haris Rauf',role:'BOWL',bat:18,bowl:87,wk:false,age:30,country:'Pakistan',style:'Right-hand Bat',hair:0,skin:2,face:0,mood:4,form:[0,1,1,1,0],traits:{aggression:88,consistency:82,pressure:80,fitness:86}},
+  {name:'Usama Mir',role:'BOWL',bat:15,bowl:82,wk:false,age:27,country:'Pakistan',style:'Right-hand Bat',hair:3,skin:2,face:2,mood:3,form:[1,0,0,1,1],traits:{aggression:70,consistency:80,pressure:78,fitness:84}}
+ ]},
+ {name:'South Africa',abbr:'SA',flag:'🇿🇦',col:'#007a4d',kit:'#00783c',players:[
+  {name:'Quinton de Kock',role:'WK',bat:88,bowl:5,wk:true,age:31,country:'S. Africa',style:'Left-hand Bat',hair:2,skin:1,face:1,mood:4,form:[1,1,0,1,1],traits:{aggression:88,consistency:84,pressure:86,fitness:88}},
+  {name:'Reeza Hendricks',role:'BAT',bat:80,bowl:5,wk:false,age:34,country:'S. Africa',style:'Right-hand Bat',hair:1,skin:2,face:3,mood:3,form:[0,1,1,0,1],traits:{aggression:76,consistency:80,pressure:76,fitness:84}},
+  {name:'Temba Bavuma',role:'BAT',bat:82,bowl:10,wk:false,age:34,country:'S. Africa',style:'Right-hand Bat',hair:0,skin:4,face:0,mood:4,form:[1,0,1,1,1],traits:{aggression:72,consistency:84,pressure:86,fitness:86}},
+  {name:'Rassie van der Dussen',role:'BAT',bat:85,bowl:10,wk:false,age:34,country:'S. Africa',style:'Right-hand Bat',hair:3,skin:1,face:2,mood:4,form:[1,1,1,0,1],traits:{aggression:78,consistency:86,pressure:84,fitness:88}},
+  {name:'David Miller',role:'BAT',bat:84,bowl:10,wk:false,age:34,country:'S. Africa',style:'Left-hand Bat',hair:2,skin:1,face:1,mood:5,form:[0,1,1,1,1],traits:{aggression:92,consistency:80,pressure:88,fitness:86}},
+  {name:'Aiden Markram',role:'ALL',bat:80,bowl:72,wk:false,age:29,country:'S. Africa',style:'Right-hand Bat',hair:1,skin:1,face:3,mood:4,form:[1,1,0,1,1],traits:{aggression:78,consistency:82,pressure:80,fitness:90}},
+  {name:'Marco Jansen',role:'ALL',bat:65,bowl:82,wk:false,age:24,country:'S. Africa',style:'Left-hand Bat',hair:0,skin:1,face:0,mood:4,form:[1,0,1,1,1],traits:{aggression:76,consistency:78,pressure:76,fitness:92}},
+  {name:'Keshav Maharaj',role:'BOWL',bat:35,bowl:85,wk:false,age:34,country:'S. Africa',style:'Left-hand Bat',hair:3,skin:3,face:2,mood:4,form:[1,1,1,0,0],traits:{aggression:66,consistency:86,pressure:84,fitness:82}},
+  {name:'Kagiso Rabada',role:'BOWL',bat:28,bowl:93,wk:false,age:29,country:'S. Africa',style:'Right-hand Bat',hair:2,skin:4,face:1,mood:5,form:[1,1,1,1,1],traits:{aggression:92,consistency:90,pressure:92,fitness:92}},
+  {name:'Anrich Nortje',role:'BOWL',bat:15,bowl:90,wk:false,age:30,country:'S. Africa',style:'Right-hand Bat',hair:1,skin:1,face:3,mood:4,form:[1,0,1,1,1],traits:{aggression:90,consistency:84,pressure:86,fitness:86}},
+  {name:'Tabraiz Shamsi',role:'BOWL',bat:12,bowl:86,wk:false,age:33,country:'S. Africa',style:'Left-hand Bat',hair:0,skin:2,face:0,mood:3,form:[0,1,0,1,1],traits:{aggression:68,consistency:84,pressure:82,fitness:82}}
+ ]},
+ {name:'New Zealand',abbr:'NZ',flag:'🇳🇿',col:'#111111',kit:'#1a1a2e',players:[
+  {name:'Devon Conway',role:'WK',bat:86,bowl:10,wk:true,age:32,country:'New Zealand',style:'Left-hand Bat',hair:2,skin:1,face:1,mood:4,form:[1,1,0,1,1],traits:{aggression:74,consistency:88,pressure:86,fitness:90}},
+  {name:'Finn Allen',role:'BAT',bat:82,bowl:10,wk:false,age:25,country:'New Zealand',style:'Right-hand Bat',hair:1,skin:1,face:2,mood:5,form:[0,1,1,1,0],traits:{aggression:92,consistency:76,pressure:78,fitness:92}},
+  {name:'Kane Williamson',role:'BAT',bat:94,bowl:40,wk:false,age:33,country:'New Zealand',style:'Right-hand Bat',hair:0,skin:1,face:3,mood:5,form:[1,1,1,1,1],traits:{aggression:72,consistency:96,pressure:95,fitness:86}},
+  {name:'Daryl Mitchell',role:'ALL',bat:82,bowl:68,wk:false,age:32,country:'New Zealand',style:'Right-hand Bat',hair:3,skin:1,face:0,mood:4,form:[1,0,1,1,1],traits:{aggression:82,consistency:82,pressure:84,fitness:88}},
+  {name:'Glenn Phillips',role:'BAT',bat:80,bowl:50,wk:false,age:27,country:'New Zealand',style:'Right-hand Bat',hair:2,skin:1,face:1,mood:5,form:[1,1,1,0,1],traits:{aggression:86,consistency:78,pressure:80,fitness:90}},
+  {name:'Mitchell Santner',role:'ALL',bat:68,bowl:82,wk:false,age:31,country:'New Zealand',style:'Left-hand Bat',hair:1,skin:1,face:3,mood:4,form:[0,1,1,1,0],traits:{aggression:66,consistency:84,pressure:82,fitness:88}},
+  {name:'Colin de Grandhomme',role:'ALL',bat:74,bowl:72,wk:false,age:37,country:'New Zealand',style:'Right-hand Bat',hair:0,skin:2,face:2,mood:3,form:[1,0,0,1,1],traits:{aggression:78,consistency:74,pressure:76,fitness:80}},
+  {name:'Tim Southee',role:'BOWL',bat:30,bowl:88,wk:false,age:35,country:'New Zealand',style:'Right-hand Bat',hair:3,skin:1,face:0,mood:4,form:[1,1,0,1,1],traits:{aggression:82,consistency:86,pressure:88,fitness:82}},
+  {name:'Trent Boult',role:'BOWL',bat:18,bowl:92,wk:false,age:34,country:'New Zealand',style:'Left-hand Bat',hair:2,skin:1,face:1,mood:4,form:[1,1,1,1,0],traits:{aggression:86,consistency:90,pressure:90,fitness:84}},
+  {name:'Matt Henry',role:'BOWL',bat:16,bowl:86,wk:false,age:32,country:'New Zealand',style:'Right-hand Bat',hair:1,skin:1,face:3,mood:3,form:[0,1,1,0,1],traits:{aggression:80,consistency:84,pressure:80,fitness:86}},
+  {name:'Ish Sodhi',role:'BOWL',bat:20,bowl:82,wk:false,age:31,country:'New Zealand',style:'Right-hand Bat',hair:0,skin:2,face:2,mood:4,form:[1,0,1,1,1],traits:{aggression:70,consistency:82,pressure:80,fitness:84}}
+ ]}
+];
+let teams=JSON.parse(JSON.stringify(TDATA));
+
+// ===================== AVATAR DRAWING =====================
+const SKIN_COLS=['#ffd7b0','#f5c090','#c8885a','#8d5524','#4a2e12'];
+const HAIR_COLS=['#1a0a00','#5c3317','#8b4513','#f0c040','#e8e8e8'];
+const SHIRT_COLS=['#003580','#ffd700','#003082','#006600','#007a4d','#111122','#7b0000','#8b1a1a'];
+
+function drawAvatar(canvas, player, teamIdx, size){
+ const ctx=canvas.getContext('2d');
+ const w=canvas.width=size,h=canvas.height=size;
+ ctx.clearRect(0,0,w,h);
+ const s=size/60;
+ const skin=SKIN_COLS[player.skin||0];
+ const hair=HAIR_COLS[player.hair||0];
+ const shirt=SHIRT_COLS[teamIdx%SHIRT_COLS.length];
+
+ // Background circle
+ const bg=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);
+ bg.addColorStop(0,'#1a2a3a');bg.addColorStop(1,'#0a1020');
+ ctx.fillStyle=bg;ctx.beginPath();ctx.arc(w/2,h/2,w/2,0,Math.PI*2);ctx.fill();
+
+ // Body / shirt
+ ctx.fillStyle=shirt;
+ ctx.beginPath();
+ ctx.ellipse(w/2,h*.78,w*.26,h*.22,0,0,Math.PI*2);ctx.fill();
+
+ // Neck
+ ctx.fillStyle=skin;
+ ctx.fillRect(w/2-s*3,h*.46,s*6,s*8);
+
+ // Head
+ const headR=w*.22;
+ const hx=w/2, hy=h*.38;
+ const faceX=player.face%2===0?-s:s;
+ ctx.fillStyle=skin;
+ ctx.beginPath();ctx.ellipse(hx+faceX*.3,hy,headR,headR*1.1,0,0,Math.PI*2);ctx.fill();
+
+ // Hair
+ ctx.fillStyle=hair;
+ ctx.beginPath();
+ const hairStyle=player.hair%4;
+ if(hairStyle===0){ctx.ellipse(hx+faceX*.3,hy-headR*.4,headR,headR*.7,0,Math.PI,2*Math.PI);ctx.fill();}
+ else if(hairStyle===1){ctx.ellipse(hx+faceX*.3,hy-headR*.3,headR*1.05,headR*.5,0,Math.PI,2*Math.PI);ctx.fill();}
+ else if(hairStyle===2){ctx.ellipse(hx+faceX*.3,hy-headR*.35,headR,headR*.6,-.1,Math.PI,2*Math.PI);ctx.fill();}
+ else{for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(hx+faceX*.3+(i-2)*headR*.28,hy-headR*.5,headR*.25,0,Math.PI*2);ctx.fill();}}
+
+ // Eyes
+ const ex=hx+faceX*.3;
+ ctx.fillStyle='#fff';
+ ctx.beginPath();ctx.ellipse(ex-headR*.3,hy-s,s*2.2,s*1.5,0,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.ellipse(ex+headR*.3,hy-s,s*2.2,s*1.5,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#1a0a00';
+ const lookX=player.face>1?s*.3:-s*.3;
+ ctx.beginPath();ctx.arc(ex-headR*.3+lookX,hy-s,s*1.2,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(ex+headR*.3+lookX,hy-s,s*1.2,0,Math.PI*2);ctx.fill();
+
+ // Eyebrows
+ ctx.strokeStyle=hair;ctx.lineWidth=s*1.2;ctx.lineCap='round';
+ const mood=player.mood||3;
+ const browTilt=mood>=4?-s*.3:(mood<=2?s*.3:0);
+ ctx.beginPath();ctx.moveTo(ex-headR*.4,hy-s*2.8+browTilt);ctx.lineTo(ex-headR*.15,hy-s*2.5-browTilt);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(ex+headR*.15,hy-s*2.5-browTilt);ctx.lineTo(ex+headR*.4,hy-s*2.8+browTilt);ctx.stroke();
+
+ // Nose
+ ctx.fillStyle=skin;ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=s*.8;
+ ctx.beginPath();ctx.moveTo(ex,hy);ctx.lineTo(ex-s*.8,hy+s*1.8);ctx.lineTo(ex+s*.8,hy+s*1.8);ctx.stroke();
+
+ // Mouth
+ ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=s*.9;ctx.lineCap='round';
+ ctx.beginPath();
+ if(mood>=4){ctx.arc(ex,hy+s*2.8,s*2,.15,Math.PI-.15);}
+ else if(mood<=2){ctx.arc(ex,hy+s*4.5,s*2,Math.PI+.2,2*Math.PI-.2);}
+ else{ctx.moveTo(ex-s*1.8,hy+s*3.2);ctx.lineTo(ex+s*1.8,hy+s*3.2);}
+ ctx.stroke();
+
+ // Helmet badge
+ if(size>=52){
+  ctx.fillStyle=shirt;ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=.5;
+  ctx.beginPath();ctx.arc(hx+faceX*.3-headR*.55,hy+s,s*3.5,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.6)';ctx.font=`bold ${Math.floor(s*2.5)}px Arial`;ctx.textAlign='center';
+  ctx.fillText(teams[teamIdx]?.abbr?.charAt(0)||'?',hx+faceX*.3-headR*.55,hy+s*1.8);
+ }
+}
+
+// ===================== PLAYER CARD RENDER =====================
+function renderPlayerCard(player, teamIdx, container){
+ const role=player.wk?'WK':player.role;
+ const roleClass=`b-${role.toLowerCase()}`;
+ const moodLabel=['','😤 Frustrated','😟 Low Confidence','😐 Neutral','🙂 Good Form','🔥 In the Zone!'][player.mood||3];
+ const traitColors={aggression:'#ff6644',consistency:'#44aaff',pressure:'#aa44ff',fitness:'#44ff88'};
+
+ container.innerHTML=`
+  <div class="pc-header">
+   <div class="pc-avatar"><canvas id="pcAv_${teamIdx}_${teams[teamIdx]?.players?.indexOf(player)}" width="52" height="52"></canvas></div>
+   <div class="pc-meta">
+    <div class="pc-name">${player.name}</div>
+    <div class="pc-team">${teams[teamIdx]?.flag||''} ${player.country} · Age ${player.age}</div>
+    <div class="pc-badges">
+     <span class="badge ${roleClass}">${role}</span>
+     <span class="badge" style="background:#222;color:#888">${player.style}</span>
+    </div>
+   </div>
+  </div>
+  <div class="pc-body">
+   <div style="font-size:9px;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Attributes</div>
+   ${['bat','bowl'].map(k=>`
+   <div class="stat-row">
+    <div class="stat-label">${k==='bat'?'Batting':'Bowling'}</div>
+    <div class="stat-bar-wrap"><div class="stat-bar" style="width:${player[k]}%;background:${k==='bat'?'#ffd700':'#4488ff'}"></div></div>
+    <div class="stat-val" style="color:${k==='bat'?'#ffd700':'#4488ff'}">${player[k]}</div>
+   </div>`).join('')}
+   <div style="font-size:9px;color:#666;text-transform:uppercase;letter-spacing:.5px;margin:4px 0 2px">Traits</div>
+   <div class="trait-grid">
+    ${Object.entries(player.traits||{}).map(([k,v])=>`
+    <div class="trait">
+     <div class="trait-name">${k.charAt(0).toUpperCase()+k.slice(1)}</div>
+     <div class="trait-val" style="color:${traitColors[k]||'#fff'}">${v}</div>
+    </div>`).join('')}
+   </div>
+   <div class="mood-row">
+    <div class="mood-ico">${moodLabel.split(' ')[0]}</div>
+    <div>
+     <div style="font-size:9px;color:#666;text-transform:uppercase;letter-spacing:.5px">Mood</div>
+     <div class="mood-txt">${moodLabel.split(' ').slice(1).join(' ')}</div>
+    </div>
+   </div>
+   <div>
+    <div style="font-size:9px;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Recent Form</div>
+    <div class="form-dots" style="justify-content:flex-start">
+     ${(player.form||[]).map(f=>`<div class="fdot" style="background:${f?'#4eff88':'#ff4444'}"></div>`).join('')}
+    </div>
+   </div>
+  </div>`;
+
+ // Draw avatar after DOM
+ requestAnimationFrame(()=>{
+  const pi=teams[teamIdx]?.players?.indexOf(player);
+  const cv=document.getElementById(`pcAv_${teamIdx}_${pi}`);
+  if(cv)drawAvatar(cv,player,teamIdx,52);
+ });
+}
+
+// ===================== SHOTS & BOWLS =====================
+const SHOTS=[
+ {id:'drv_off',lb:'Cover Drive',ic:'🎯'},{id:'drv_on',lb:'On Drive',ic:'⚡'},
+ {id:'pull',lb:'Pull Shot',ic:'💥'},{id:'cut',lb:'Cut Shot',ic:'✂️'},
+ {id:'sweep',lb:'Sweep',ic:'🌀'},{id:'flick',lb:'Flick',ic:'👆'},
+ {id:'slog',lb:'Slog Sweep',ic:'🔨'},{id:'loft',lb:'Lofted Drive',ic:'🚀'}
+];
+const BTYPES=[
+ {id:'fast_out',lb:'Out Swinger',ic:'🏹'},{id:'fast_in',lb:'In Swinger',ic:'🔄'},
+ {id:'yorker',lb:'Yorker',ic:'⬇️'},{id:'bouncer',lb:'Bouncer',ic:'☄️'},
+ {id:'off_spin',lb:'Off Spin',ic:'🌀'},{id:'leg_spin',lb:'Leg Spin',ic:'🔃'},
+ {id:'googly',lb:'Googly',ic:'🎭'},{id:'slower',lb:'Slower Ball',ic:'🐌'}
+];
+
+// ===================== MATCH STATE =====================
+let M={},diffMult=1;
+function resetM(){
+ M={t1:0,t2:1,fmt:'T20',maxOv:20,diff:'easy',
+  tw:0,tc:'bat',ci:0,inn:[newI(0),newI(1)],
+  bats:[0,1],str:0,bwIdx:8,bwOvs:{},curOv:[],
+  pDel:null,phase:'wait',plrBat:true,pbType:null,aimX:.5,aimY:.7};
+}
+function newI(i){return{bt:i,runs:0,wkts:0,balls:0,ovRuns:[],curOvR:0,wagonD:[],extras:{wd:0,nb:0},batsmen:[],bowlers:[],allBalls:[]};}
+resetM();
+
+function setDiff(el,d){
+ document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('sel'));
+ el.classList.add('sel');M.diff=d;
+ diffMult=d==='easy'?.7:d==='med'?1:1.4;
+}
+
+// ===================== DELIVERY LOGIC =====================
+function genDel(skill=85){
+ const types=['fast_out','fast_in','yorker','bouncer','off_spin','leg_spin','googly','slower'];
+ const lines=['off','mid','leg','woff','wleg'],lens=['full','good','short','yorker','bouncer'];
+ const type=types[Math.floor(Math.random()*types.length)];
+ const lwt=skill>85?[.35,.35,.2,.05,.05]:[.28,.3,.22,.1,.1];
+ const line=wPick(lines,lwt);
+ let llwt;
+ if(type.includes('spin'))llwt=[.3,.4,.2,.05,.05];
+ else if(type==='yorker')llwt=[.1,.1,.1,.6,.1];
+ else if(type==='bouncer')llwt=[.05,.05,.1,.1,.7];
+ else llwt=[.25,.35,.25,.1,.05];
+ const length=wPick(lens,llwt);
+ const isWide=(line==='woff'||line==='wleg')&&Math.random()<.35;
+ const isNB=!isWide&&Math.random()<.04;
+ return{type,line,length,isWide,isNB};
+}
+function wPick(arr,w){
+ let r=Math.random(),c=0;
+ for(let i=0;i<arr.length;i++){c+=w[i];if(r<c)return arr[i];}
+ return arr[arr.length-1];
+}
+
+function shotCompat(del,sid){
+ const{type,line,length}=del;
+ const isSpin=type.includes('spin')||type==='googly';
+ const cm={
+  drv_off:{full:1,good:.7,short:.2,yorker:.5,bouncer:.1,off:1,mid:.6,leg:.2,woff:.8,wleg:.1},
+  drv_on:{full:1,good:.7,short:.2,yorker:.5,bouncer:.1,off:.3,mid:.8,leg:1,woff:.2,wleg:.6},
+  pull:{full:.1,good:.3,short:1,yorker:.1,bouncer:.85,off:.6,mid:.8,leg:1,woff:.4,wleg:.9},
+  cut:{full:.2,good:.5,short:1,yorker:.1,bouncer:.3,off:1,mid:.4,leg:.1,woff:1,wleg:.1},
+  sweep:{full:.6,good:.8,short:.4,yorker:.3,bouncer:.1,off:.3,mid:.7,leg:1,woff:.2,wleg:.8},
+  flick:{full:.8,good:.6,short:.3,yorker:.7,bouncer:.1,off:.1,mid:.6,leg:1,woff:.1,wleg:.8},
+  slog:{full:.7,good:.5,short:.4,yorker:.3,bouncer:.35,off:.5,mid:.7,leg:.7,woff:.4,wleg:.5},
+  loft:{full:.9,good:.6,short:.3,yorker:.2,bouncer:.2,off:.7,mid:.8,leg:.7,woff:.5,wleg:.5},
+  defend:{full:.9,good:1,short:.35,yorker:.8,bouncer:.15,off:.8,mid:.9,leg:.7,woff:.6,wleg:.6}
+ };
+ const sm=cm[sid]||cm.defend;
+ let c=((sm[length]??0.5)+(sm[line]??0.5))/2;
+ if(sid==='sweep'&&isSpin)c=Math.min(1,c*1.3);
+ if(sid==='sweep'&&!isSpin)c*=.5;
+ if(sid==='pull'&&isSpin)c*=.6;
+ return Math.min(1,Math.max(0,c));
+}
+
+function calcOut(del,sid,batSkill=80){
+ if(del.isWide)return{runs:1,wkt:false,wtype:null,extra:'Wide',wAngle:null};
+ const compat=shotCompat(del,sid);
+ const eff=Math.min(1,compat+(batSkill/100-.5)*.3);
+ let wktp;
+ if(eff<.2)wktp=.45*diffMult;
+ else if(eff<.4)wktp=.25*diffMult;
+ else if(eff<.6)wktp=.12*diffMult;
+ else if(eff<.8)wktp=.05*diffMult;
+ else wktp=.02*diffMult;
+ wktp=Math.min(.95,wktp);
+ if(del.isNB)wktp=0;
+ if(Math.random()<wktp){
+  return{runs:del.isNB?1:0,wkt:true,wtype:getWType(del,sid),extra:del.isNB?'No Ball':null,wAngle:null};
+ }
+ let rOpts,rWts;
+ if(eff>=.8){
+  rOpts=[0,1,2,3,4,6];
+  rWts=sid==='slog'||sid==='loft'?[.04,.08,.1,.1,.3,.38]:[.05,.25,.15,.05,.35,.15];
+ }else if(eff>=.6){rOpts=[0,1,2,3,4];rWts=[.15,.4,.2,.1,.15];}
+ else if(eff>=.4){rOpts=[0,1,2];rWts=[.4,.45,.15];}
+ else{rOpts=[0,1];rWts=[.65,.35];}
+ const br=wPick(rOpts,rWts);
+ const wa=shotWAngle(sid,del.line);
+ const tot=br+(del.isNB?1:0);
+ return{runs:tot,base:br,wkt:false,extra:del.isNB?'No Ball':null,wAngle:wa,isBnd:br===4||br===6};
+}
+function getWType(del,sid){
+ const arr=['drv_off','drv_on','flick','loft'].includes(sid)?['Bowled','Bowled','LBW','Caught']:
+  ['pull','cut'].includes(sid)?['Caught','Caught','Caught','Caught in Outfield']:
+  sid==='slog'?['Caught','Caught','Stumped','Caught']:
+  sid==='defend'?['Bowled','LBW','Caught','Caught']:
+  ['Caught','Bowled','LBW','Run Out'];
+ return arr[Math.floor(Math.random()*arr.length)];
+}
+function shotWAngle(sid,line){
+ const a={drv_off:-30,drv_on:30,pull:140,cut:-60,sweep:100,flick:70,slog:(Math.random()<.5?90:60),loft:(Math.random()*60-10),defend:0};
+ let ang=a[sid]??0;
+ if(line==='woff')ang-=20;if(line==='wleg')ang+=20;
+ return ang+(Math.random()-.5)*30;
+}
+function aiBat(del){
+ const ci=M.inn[M.ci];
+ const bt=teams[ci.bt];
+ const sk=bt.players[M.bats[M.str]]?.bat||75;
+ let best='defend',bsc=0;
+ SHOTS.forEach(s=>{const c=shotCompat(del,s.id);if(c>bsc){bsc=c;best=s.id;}});
+ if(Math.random()>sk/100)best=SHOTS[Math.floor(Math.random()*SHOTS.length)].id;
+ return best;
+}
+
+// ===================== BALL DELIVERY =====================
+function deliverBall(sid){
+ if(!M.pDel)return;
+ const ci=M.inn[M.ci];
+ const del=M.pDel;
+ const bt=teams[ci.bt];
+ const bwTeam=teams[ci.bt===M.t1?M.t2:M.t1];
+ const striker=bt.players[M.bats[M.str]];
+ const bowler=bwTeam.players[M.bwIdx];
+ const out=calcOut(del,sid,striker?.bat||75);
+ const legal=!del.isWide&&!del.isNB;
+
+ const bs=out.wkt?'W':(out.extra?`${out.runs}${out.extra[0]}`:`${out.runs}`);
+ if(legal)M.curOv.push(bs);
+ ci.allBalls.push({bs,runs:out.runs,wkt:out.wkt,sid});
+
+ const be=ci.batsmen[M.bats[M.str]];
+ if(be){
+  if(legal)be.balls++;
+  if(!out.wkt){be.runs+=(out.base??out.runs);if((out.base??out.runs)===4)be.fours++;if((out.base??out.runs)===6)be.sixes++;}
+ }
+ const bwe=ci.bowlers[M.bwIdx];
+ if(bwe){if(legal)bwe.balls++;bwe.runs+=out.runs;}
+ ci.runs+=out.runs;
+ if(legal)ci.balls++;
+ if(del.isWide)ci.extras.wd+=out.runs;
+ if(del.isNB)ci.extras.nb++;
+ if(out.wkt){ci.wkts++;if(bwe)bwe.wkts++;if(be){be.out=true;be.outInfo=`${out.wtype} b ${bowler?.name||'?'}`;}}
+ if(out.wAngle!==null&&(out.base??out.runs)>0)ci.wagonD.push({a:out.wAngle,r:(out.base??out.runs)});
+
+ const bInOv=ci.balls%6;
+ addComm(mkComm(del,sid,out));
+ showBRes(out);
+
+ if(legal&&bInOv===0&&ci.balls>0){
+  ci.ovRuns.push(ci.curOvR);ci.curOvR=0;
+  if(bwe){bwe.overs++;bwe.balls=0;M.bwOvs[M.bwIdx]=(M.bwOvs[M.bwIdx]||0)+1;}
+  M.curOv=[];nextBowler();M.str=1-M.str;
+ }else{ci.curOvR+=out.runs;if(legal&&!out.wkt&&((out.base??out.runs)%2===1))M.str=1-M.str;}
+
+ if(out.wkt){const nb=nextBatsman();if(nb!==-1)M.bats[M.str]=nb;}
+
+ const ovsDone=Math.floor(ci.balls/6);
+ if(ci.wkts>=10||(ovsDone>=M.maxOv&&M.fmt!=='Test')){setTimeout(endInn,1400);return;}
+ if(M.ci===1&&ci.runs>M.inn[0].runs){setTimeout(showRes,1400);return;}
+
+ updateSBar();updateBI();updateBowlInf();
+ setTimeout(()=>{M.phase='wait';M.pDel=null;clearBRes();if(M.plrBat)prepDel();else showBowlPanelFn();},1200);
+}
+function nextBatsman(){
+ const ci=M.inn[M.ci];
+ for(let i=0;i<11;i++){if(!M.bats.includes(i)&&!ci.batsmen[i]?.out)return i;}
+ return -1;
+}
+
+// ===================== BOWLING =====================
+function prepDel(){
+ const ci=M.inn[M.ci];
+ if(ci.wkts>=10||Math.floor(ci.balls/6)>=M.maxOv)return;
+ const bwTeam=teams[ci.bt===M.t1?M.t2:M.t1];
+ const del=genDel(bwTeam.players[M.bwIdx]?.bowl||80);
+ M.pDel=del;M.phase='shown';
+ showDeli(del);animBall();
+ document.getElementById('panelTitle').textContent='Choose Your Shot';
+ document.getElementById('leaveBtn').style.display='flex';
+}
+function showBowlPanelFn(){
+ document.getElementById('gamePanel').classList.remove('off');
+ document.getElementById('playerCardPanel').classList.remove('on');
+ document.getElementById('shotGrid').style.display='none';
+ document.getElementById('bowlGrid').style.display='grid';
+ document.getElementById('leaveBtn').style.display='none';
+ document.getElementById('panelTitle').textContent='Select Delivery Type';
+ const g=document.getElementById('bowlGrid');g.innerHTML='';
+ BTYPES.forEach(b=>{
+  const el=document.createElement('div');el.className='bowl-btn';
+  el.innerHTML=`<span class="ico">${b.ic}</span>${b.lb}`;
+  el.onclick=()=>selectBType(b.id);g.appendChild(el);
+ });
+}
+function selectBType(id){
+ M.pbType=id;
+ const ov=document.getElementById('aimOv');ov.classList.add('on');
+ const ac=document.getElementById('aCanvas');
+ const pa=document.getElementById('pCanvas').parentElement;
+ ac.width=pa.clientWidth;ac.height=pa.clientHeight;
+ drawAimGrid(ac,-1,-1);
+ ac.onclick=(e)=>{
+  const rc=ac.getBoundingClientRect();
+  M.aimX=(e.clientX-rc.left)/rc.width;
+  M.aimY=(e.clientY-rc.top)/rc.height;
+  drawAimGrid(ac,M.aimX,M.aimY);
+  setTimeout(()=>{ov.classList.remove('on');bowlIt();},350);
+ };
+}
+function cancelAim(){document.getElementById('aimOv').classList.remove('on');M.pbType=null;}
+function bowlIt(){
+ const x=M.aimX,y=M.aimY;
+ const line=x<.2?'woff':x<.35?'off':x<.55?'mid':x<.7?'leg':'wleg';
+ const length=y<.2?'bouncer':y<.45?'short':y<.7?'good':y<.85?'full':'yorker';
+ const type=M.pbType||'fast_out';
+ const isWide=(line==='woff'||line==='wleg')&&Math.random()<.25;
+ M.pDel={type,line,length,isWide,isNB:false};
+ M.phase='shown';showDeli(M.pDel);animBall();
+ document.getElementById('shotGrid').style.display='none';
+ document.getElementById('bowlGrid').style.display='none';
+ setTimeout(()=>{
+  const sid=aiBat(M.pDel);M.phase='res';deliverBall(sid);
+  setTimeout(()=>{clearBRes();showBowlPanelFn();updateSBar();updateBI();updateBowlInf();},1200);
+ },900);
+}
+function leaveShot(){if(M.phase!=='shown'||!M.plrBat)return;M.phase='res';deliverBall('defend');}
+
+// ===================== INNINGS MGMT =====================
+function initBatting(){
+ const ci=M.inn[M.ci];
+ const bt=teams[ci.bt];
+ const bwTeam=teams[ci.bt===M.t1?M.t2:M.t1];
+ ci.batsmen=bt.players.map((p,i)=>({i,name:p.name,runs:0,balls:0,fours:0,sixes:0,out:false,outInfo:'-'}));
+ ci.bowlers=bwTeam.players.map((p,i)=>({i,name:p.name,overs:0,balls:0,runs:0,wkts:0}));
+ M.bats=[0,1];M.str=0;nextBowler(true);
+ updateSBar();updateBI();updateBowlInf();
+}
+function nextBowler(init=false){
+ const ci=M.inn[M.ci];
+ const bwTeam=teams[ci.bt===M.t1?M.t2:M.t1];
+ const maxBOv=M.fmt==='T20'?4:M.fmt==='ODI'?10:999;
+ let best=-1,bsc=-1;
+ bwTeam.players.forEach((p,i)=>{
+  const used=M.bwOvs[i]||0;
+  if(used>=maxBOv)return;
+  if(!init&&i===M.bwIdx&&M.curOv.length===0)return;
+  if(p.bowl>bsc){bsc=p.bowl;best=i;}
+ });
+ if(best===-1)best=0;
+ M.bwIdx=best;
+}
+function endInn(){
+ const ci=M.inn[M.ci];
+ if(ci.curOvR>0||ci.balls%6>0)ci.ovRuns.push(ci.curOvR);
+ if(M.ci===0){
+  const bt=teams[ci.bt];
+  document.getElementById('brksumm').innerHTML=
+   `${bt.flag} <b>${bt.name}</b> scored<br><b style="color:#ffd700;font-size:20px">${ci.runs}/${ci.wkts}</b><br>in ${Math.floor(ci.balls/6)}.${ci.balls%6} overs<br><br>Target: <b style="color:#4eff88;font-size:16px">${ci.runs+1}</b>`;
+  go('s-brk');
+ }else{showRes();}
+}
+function startInnings2(){
+ M.ci=1;
+ const i0bt=M.inn[0].bt;
+ M.inn[1].bt=i0bt===M.t1?M.t2:M.t1;
+ M.bats=[0,1];M.str=0;M.bwIdx=8;M.bwOvs={};M.curOv=[];
+ M.plrBat=M.inn[1].bt===M.t1;
+ go('s-match');
+ setTimeout(()=>{
+  initCanvas();initBatting();
+  if(M.plrBat){
+   document.getElementById('shotGrid').style.display='grid';
+   document.getElementById('bowlGrid').style.display='none';
+   renderShots();prepDel();
+  }else{showBowlPanelFn();}
+  addComm(`2nd Innings! ${teams[M.inn[1].bt].name} need ${M.inn[0].runs+1} to win.`);
+ },200);
+}
+function showRes(){
+ const i0=M.inn[0],i1=M.inn[1];
+ let w,wd;
+ if(i1.runs>i0.runs){const wl=10-i1.wkts;w=`${teams[i1.bt].flag} ${teams[i1.bt].name} Win!`;wd=`by ${wl} wicket${wl!==1?'s':''}`;}
+ else if(i0.runs>i1.runs){const mg=i0.runs-i1.runs;w=`${teams[i0.bt].flag} ${teams[i0.bt].name} Win!`;wd=`by ${mg} run${mg!==1?'s':''}`;}
+ else{w='Match Tied! 🤝';wd='Incredible game!';}
+ document.getElementById('rwinner').textContent=w;
+ document.getElementById('rdetail').innerHTML=
+  `${wd}<br><br>${teams[i0.bt].name}: ${i0.runs}/${i0.wkts} (${Math.floor(i0.balls/6)}.${i0.balls%6} ov)<br>${teams[i1.bt].name}: ${i1.runs}/${i1.wkts} (${Math.floor(i1.balls/6)}.${i1.balls%6} ov)`;
+ go('s-res');
+}
+
+// ===================== CANVAS =====================
+let pCtx,pCnv,rafId;
+function initCanvas(){
+ pCnv=document.getElementById('pCanvas');
+ const pa=pCnv.parentElement;
+ pCnv.width=pa.clientWidth;pCnv.height=pa.clientHeight;
+ pCtx=pCnv.getContext('2d');
+ drawPitch();
+}
+function drawPitch(bx,by){
+ if(!pCtx)return;
+ const c=pCtx,w=pCnv.width,h=pCnv.height;
+ // Sky gradient
+ c.fillStyle='#1a3a5c';c.fillRect(0,0,w,h*.4);
+ c.fillStyle='#2a5a3a';c.fillRect(0,h*.4,w,h*.6);
+ // Outfield
+ const of1=c.createLinearGradient(0,h*.38,0,h);
+ of1.addColorStop(0,'#2a7a2a');of1.addColorStop(1,'#1a4a1a');
+ c.fillStyle=of1;c.fillRect(0,h*.38,w,h*.62);
+ // Pitch stripes
+ for(let i=0;i<5;i++){
+  c.fillStyle=i%2===0?'#2d7a2d':'#267826';
+  c.fillRect(0,h*.38+i*(h*.62/5),w,h*.62/5);
+ }
+ // Inner circle
+ c.strokeStyle='#ffffff22';c.lineWidth=1.5;
+ c.beginPath();c.ellipse(w/2,h*.6,w*.38,h*.34,0,0,Math.PI*2);c.stroke();
+ c.beginPath();c.ellipse(w/2,h*.6,w*.22,h*.2,0,0,Math.PI*2);c.stroke();
+
+ // Pitch strip (perspective)
+ const pitch_w_top=w*.06,pitch_w_bot=w*.14;
+ const py1=h*.15,py2=h*.95;
+ c.fillStyle='#c8a96e';
+ c.beginPath();
+ c.moveTo(w/2-pitch_w_top/2,py1);c.lineTo(w/2+pitch_w_top/2,py1);
+ c.lineTo(w/2+pitch_w_bot/2,py2);c.lineTo(w/2-pitch_w_bot/2,py2);c.closePath();c.fill();
+ // Pitch wear marks
+ c.fillStyle='rgba(0,0,0,.08)';
+ for(let i=0;i<6;i++){
+  const fy=py1+(py2-py1)*(Math.random()*.6+.2);
+  const fw=pitch_w_top+(pitch_w_bot-pitch_w_top)*((fy-py1)/(py2-py1));
+  c.beginPath();c.ellipse(w/2+(Math.random()-.5)*fw*.4,fy,fw*.15,h*.012,0,0,Math.PI*2);c.fill();
+ }
+ // Crease lines
+ c.strokeStyle='#fff';c.lineWidth=1.5;
+ const crease_w_near=pitch_w_bot*1.4;
+ const crease_w_far=pitch_w_top*1.4;
+ c.beginPath();c.moveTo(w/2-crease_w_near/2,py2-h*.05);c.lineTo(w/2+crease_w_near/2,py2-h*.05);c.stroke();
+ c.beginPath();c.moveTo(w/2-crease_w_far/2,py1+h*.05);c.lineTo(w/2+crease_w_far/2,py1+h*.05);c.stroke();
+
+ // Far stumps
+ const fs=h*.015,fx=w/2,fy=py1+h*.04;
+ c.fillStyle='#d4c090';
+ c.fillRect(fx-fs*2.5,fy,fs*.7,fs*3);c.fillRect(fx-fs*.35,fy,fs*.7,fs*3);c.fillRect(fx+fs*1.8,fy,fs*.7,fs*3);
+ c.fillStyle='#ffffffcc';c.fillRect(fx-fs*2.5,fy-fs*.3,fs*5,fs*.5);
+
+ // Near stumps
+ const ns=h*.025,nx=w/2,ny=py2-h*.06;
+ c.fillStyle='#f5e8c0';
+ c.fillRect(nx-ns*2.5,ny,ns*.8,ns*4);c.fillRect(nx-ns*.4,ny,ns*.8,ns*4);c.fillRect(nx+ns*1.7,ny,ns*.8,ns*4);
+ c.fillStyle='#fff';c.fillRect(nx-ns*2.5,ny-ns*.4,ns*5.5,ns*.6);
+
+ // Batsman figure
+ drawBatsman3D(c,w/2+ns*2.5,ny-h*.14,h*.12);
+
+ // Fielder dots
+ c.fillStyle='#ffffff55';
+ [[.12,.72],[.88,.72],[.5,.32],[.08,.88],[.92,.88],[.28,.5],[.72,.5],[.5,.85],[.35,.38],[.65,.38]].forEach(([fx2,fy2])=>{
+  c.beginPath();c.arc(fx2*w,fy2*h,2.5,0,Math.PI*2);c.fill();
+ });
+
+ // Ball
+ if(bx!==undefined){
+  const br=4+by/h*6;
+  c.fillStyle='#cc1100';
+  c.beginPath();c.arc(bx,by,br,0,Math.PI*2);c.fill();
+  c.strokeStyle='rgba(255,255,255,.4)';c.lineWidth=.8;
+  c.beginPath();c.arc(bx,by,br,.2,Math.PI-.2);c.stroke();
+  c.beginPath();c.arc(bx,by,br,Math.PI+.2,2*Math.PI-.2);c.stroke();
+  // Shadow
+  c.fillStyle='rgba(0,0,0,.3)';
+  c.beginPath();c.ellipse(bx,by+br*1.2,br*1.5,br*.4,0,0,Math.PI*2);c.fill();
+ }
+}
+function drawBatsman3D(c,x,y,s){
+ c.fillStyle='#fff5e0';
+ c.fillRect(x-s*.1,y+s*.2,s*.22,s*.45);
+ c.beginPath();c.arc(x,y+s*.12,s*.15,0,Math.PI*2);c.fill();
+ c.fillStyle='#1a3a8f';
+ c.beginPath();c.arc(x,y+s*.1,s*.17,Math.PI,2*Math.PI);c.fill();
+ c.fillStyle='#c8a050';
+ c.save();c.translate(x+s*.15,y+s*.28);c.rotate(-.25);
+ c.fillRect(0,0,s*.07,s*.5);c.restore();
+ c.fillStyle='#fff5e0';
+ c.fillRect(x-s*.15,y+s*.55,s*.14,s*.42);
+ c.fillRect(x+s*.02,y+s*.55,s*.14,s*.42);
+ c.fillStyle='#1a3a8f';
+ c.fillRect(x-s*.15,y+s*.82,s*.14,s*.15);
+ c.fillRect(x+s*.02,y+s*.82,s*.14,s*.15);
+}
+function animBall(){
+ if(rafId)cancelAnimationFrame(rafId);
+ if(!pCtx)return;
+ const w=pCnv.width,h=pCnv.height;
+ let t=0;
+ const sx=w/2,sy=h*.18,ex=w/2,ey=h*.72;
+ const del=M.pDel;
+ function frame(){
+  t+=.04;if(t>1)t=1;
+  const et=t*t*(3-2*t);
+  let bx=sx+(ex-sx)*et,by=sy+(ey-sy)*et;
+  if(del){
+   if(del.type==='fast_out')bx-=14*Math.sin(t*Math.PI);
+   else if(del.type==='fast_in')bx+=14*Math.sin(t*Math.PI);
+   else if(del.type.includes('spin'))bx+=10*Math.sin(t*Math.PI*1.5);
+   else if(del.type==='googly')bx-=8*Math.sin(t*Math.PI*1.5);
+   else if(del.type==='bouncer'){by-=30*Math.sin(t*Math.PI);}
+   else if(del.type==='yorker'){by=sy+(ey-sy)*Math.pow(t,1.5);}
+  }
+  drawPitch(bx,by);
+  if(t<1)rafId=requestAnimationFrame(frame);
+ }
+ frame();
+}
+function drawAimGrid(canvas,tx,ty){
+ const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
+ ctx.clearRect(0,0,w,h);
+ const zones=[
+  {y:0,h:.2,lb:'Bouncer',col:'rgba(255,68,0,.35)'},
+  {y:.2,h:.25,lb:'Short',col:'rgba(255,136,0,.3)'},
+  {y:.45,h:.25,lb:'Good Length',col:'rgba(68,255,100,.25)'},
+  {y:.7,h:.15,lb:'Full',col:'rgba(68,136,255,.3)'},
+  {y:.85,h:.15,lb:'Yorker',col:'rgba(170,68,255,.35)'}
+ ];
+ zones.forEach(z=>{
+  ctx.fillStyle=z.col;ctx.fillRect(.08*w,z.y*h,.84*w,z.h*h);
+  ctx.strokeStyle='rgba(255,255,255,.2)';ctx.lineWidth=1;ctx.strokeRect(.08*w,z.y*h,.84*w,z.h*h);
+  ctx.fillStyle='rgba(255,255,255,.8)';ctx.font=`bold ${Math.floor(h*.05)}px Arial`;
+  ctx.textAlign='left';ctx.fillText(z.lb,.1*w,(z.y+z.h/2)*h+5);
+ });
+ ctx.fillStyle='rgba(255,255,255,.5)';ctx.font=`${Math.floor(h*.04)}px Arial`;ctx.textAlign='center';
+ [[.1,'Wide Off'],[.26,'Off'],[.5,'Middle'],[.74,'Leg'],[.9,'Wide Leg']].forEach(([xp,lb])=>{
+  ctx.fillText(lb,xp*w,h*.5);
+ });
+ if(tx>=0){
+  ctx.strokeStyle='#ffd700';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.arc(tx*w,ty*h,14,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(tx*w-20,ty*h);ctx.lineTo(tx*w+20,ty*h);
+  ctx.moveTo(tx*w,ty*h-20);ctx.lineTo(tx*w,ty*h+20);ctx.stroke();
+ }
+}
+
+// ===================== STATS =====================
+function drawManhattan(){
+ const cv=document.getElementById('mCanvas');
+ cv.width=cv.offsetWidth||400;cv.height=200;
+ const ctx=cv.getContext('2d'),w=cv.width,h=cv.height;
+ ctx.clearRect(0,0,w,h);
+ const d0=M.inn[0].ovRuns,d1=M.inn[1].ovRuns;
+ if(!d0.length&&!d1.length){ctx.fillStyle='#666';ctx.font='13px Arial';ctx.textAlign='center';ctx.fillText('Play some overs first',w/2,h/2);return;}
+ const all=[...d0,...d1];
+ const mx=Math.max(...all,12);
+ const totOv=Math.max(d0.length,d1.length,1);
+ const bw=Math.floor((w-50)/(totOv*2+2));
+ const cols=['#ffd700','#4488ff'];
+ ctx.strokeStyle='#ffffff11';ctx.lineWidth=1;
+ for(let r=0;r<=mx;r+=Math.ceil(mx/6)){
+  const y=h-22-(r/mx)*(h-32);
+  ctx.fillStyle='#555';ctx.font='9px Arial';ctx.textAlign='right';ctx.fillText(r,28,y+3);
+  ctx.beginPath();ctx.moveTo(32,y);ctx.lineTo(w,y);ctx.stroke();
+ }
+ [d0,d1].forEach((d,di)=>{
+  d.forEach((r,ov)=>{
+   const bh=(r/mx)*(h-32);
+   const x=34+ov*(bw*2+3)+di*(bw+1);
+   const y=h-22-bh;
+   ctx.fillStyle=cols[di];ctx.fillRect(x,y,bw,bh);
+   if(di===0&&bw>6){ctx.fillStyle='#555';ctx.font='8px Arial';ctx.textAlign='center';ctx.fillText(ov+1,x+bw/2,h-8);}
+  });
+ });
+ ctx.font='10px Arial';ctx.textAlign='left';
+ const n0=teams[M.inn[0].bt]?.name||'Inn 1';
+ const n1=M.inn[1].bt!==undefined?teams[M.inn[1].bt]?.name:null;
+ ctx.fillStyle=cols[0];ctx.fillRect(34,5,10,10);ctx.fillStyle='#ccc';ctx.fillText(n0,48,14);
+ if(n1){ctx.fillStyle=cols[1];ctx.fillRect(34+n0.length*6+18,5,10,10);ctx.fillStyle='#ccc';ctx.fillText(n1,48+n0.length*6+18,14);}
+}
+function drawWagonWheel(){
+ const cp=document.getElementById('tp-wag');
+ const sz=Math.min(cp.offsetWidth-20,260);
+ const cv=document.getElementById('wCanvas');cv.width=sz;cv.height=sz;
+ const ctx=cv.getContext('2d');const cx=sz/2,cy=sz/2,r=sz/2-8;
+ ctx.clearRect(0,0,sz,sz);
+ ctx.fillStyle='#1a4a1a';ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle='#ffffff22';ctx.lineWidth=1;
+ ctx.beginPath();ctx.arc(cx,cy,r*.6,0,Math.PI*2);ctx.stroke();
+ ctx.beginPath();ctx.arc(cx,cy,r*.3,0,Math.PI*2);ctx.stroke();
+ for(let a=0;a<360;a+=45){
+  const rad=a*Math.PI/180;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(rad)*r,cy+Math.sin(rad)*r);ctx.stroke();
+ }
+ ctx.fillStyle='#c8a96e55';ctx.fillRect(cx-5,cy-r*.42,10,r*.84);
+ ctx.fillStyle='#ffffff99';ctx.fillRect(cx-2,cy-5,4,10);
+ const all=[...M.inn[0].wagonD,...M.inn[1].wagonD];
+ all.forEach(pt=>{
+  const ang=(pt.a-90)*Math.PI/180;
+  const d=pt.r>=6?r*.94:pt.r>=4?r*.86:r*(.28+Math.random()*.3);
+  const tx=cx+Math.cos(ang)*d,ty=cy+Math.sin(ang)*d;
+  const col=pt.r===6?'#ff4444':pt.r===4?'#ffd700':'#88ff88';
+  ctx.strokeStyle=col+'88';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(tx,ty);ctx.stroke();
+  ctx.fillStyle=col;ctx.beginPath();ctx.arc(tx,ty,3,0,Math.PI*2);ctx.fill();
+ });
+ if(!all.length){ctx.fillStyle='#666';ctx.font='12px Arial';ctx.textAlign='center';ctx.fillText('No shots yet',cx,cy);}
+}
+function buildScorecard(){
+ const el=document.getElementById('sccont');el.innerHTML='';
+ [0,1].forEach(idx=>{
+  const inn=M.inn[idx];
+  if(!inn.batsmen?.length)return;
+  const bt=teams[inn.bt];
+  el.innerHTML+=`<div style="color:#ffd700;font-size:12px;font-weight:bold;padding:6px 0 3px">${bt?.flag||''} ${bt?.name||''} — ${inn.runs}/${inn.wkts} (${Math.floor(inn.balls/6)}.${inn.balls%6} ov)</div>`;
+  let bh=`<table class="sc-tbl"><tr><th>Batsman</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr>`;
+  inn.batsmen.forEach((b,i)=>{
+   if(b.balls===0&&!b.out&&i>1)return;
+   const sr=b.balls>0?Math.round((b.runs/b.balls)*100):'-';
+   bh+=`<tr><td><b>${b.name}</b><br><span style="font-size:8px;color:${b.out?'#ff8888':'#4eff88'}">${b.out?b.outInfo:'not out'}</span></td>
+   <td style="color:#ffd700;font-weight:bold">${b.runs}</td><td style="color:#888">${b.balls}</td>
+   <td style="color:#888">${b.fours}</td><td style="color:#888">${b.sixes}</td><td style="color:#888">${sr}</td></tr>`;
+  });
+  const ex=inn.extras;
+  bh+=`<tr><td colspan="2" style="color:#888">Extras</td><td colspan="4" style="color:#888;text-align:right">${ex.wd+ex.nb} (wd ${ex.wd}, nb ${ex.nb})</td></tr></table>`;
+  el.innerHTML+=bh;
+  el.innerHTML+=`<div style="color:#88aaff;font-size:10px;font-weight:bold;padding:6px 0 3px;margin-top:4px">Bowling</div>`;
+  let wh=`<table class="sc-tbl"><tr><th>Bowler</th><th>O</th><th>R</th><th>W</th><th>Econ</th></tr>`;
+  inn.bowlers?.forEach(b=>{
+   const tb=b.overs*6+b.balls;if(!tb)return;
+   const ov=`${Math.floor(tb/6)}.${tb%6}`;
+   const eco=tb?(b.runs/(tb/6)).toFixed(1):'-';
+   wh+=`<tr><td>${b.name}</td><td style="color:#888">${ov}</td><td style="color:#ffd700">${b.runs}</td><td style="color:#ff8888;font-weight:bold">${b.wkts}</td><td style="color:#888">${eco}</td></tr>`;
+  });
+  wh+='</table>';el.innerHTML+=wh;
+  el.innerHTML+='<hr style="border-color:#ffffff0f;margin:10px 0">';
+ });
+ if(!el.innerHTML)el.innerHTML='<p style="color:#666;text-align:center;padding:20px">Play cricket first!</p>';
+}
+
+// ===================== UI =====================
+let statsFrom='s-menu';
+function go(id){
+ document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+ document.getElementById(id).classList.add('on');
+}
+function openStats(){statsFrom=document.querySelector('.scr.on')?.id||'s-menu';go('s-stats');showTab('tp-man',document.querySelector('.stab'));}
+function closeStats(){go(statsFrom);}
+function showTab(id,btn){
+ document.querySelectorAll('.stat-pane').forEach(p=>p.classList.remove('on'));
+ document.querySelectorAll('.stab').forEach(b=>b.classList.remove('on'));
+ document.getElementById(id).classList.add('on');
+ if(btn)btn.classList.add('on');
+ if(id==='tp-man')setTimeout(drawManhattan,50);
+ else if(id==='tp-wag')setTimeout(drawWagonWheel,50);
+ else buildScorecard();
+}
+
+function showDeli(del){
+ const lb={fast_out:'Out Swinger',fast_in:'In Swinger',yorker:'Yorker',bouncer:'Bouncer',off_spin:'Off Spin',leg_spin:'Leg Spin',googly:'Googly',slower:'Slower Ball'};
+ const ll={off:'Off Stump',mid:'Middle',leg:'Leg Stump',woff:'Wide Off',wleg:'Wide Leg'};
+ const llen={full:'Full',good:'Good Length',short:'Short',yorker:'Yorker Length',bouncer:'Short Pitched'};
+ const el=document.getElementById('delinf');el.style.display='block';
+ el.innerHTML=`<b style="color:#ffd700">${lb[del.type]||del.type}</b> · ${ll[del.line]} · ${llen[del.length]}${del.isWide?' <span style="color:#ff4444">WIDE</span>':''}${del.isNB?' <span style="color:#ffaa00">NO BALL</span>':''}`;
+}
+function showBRes(out){
+ const el=document.getElementById('brespop');
+ const r=out.runs;
+ let dr,dt;
+ if(out.wkt){dr='OUT!';dt=out.wtype;}
+ else if(r===6){dr='6️⃣';dt='SIX! Over the ropes!';}
+ else if(r===4){dr='4️⃣';dt='FOUR! To the boundary!';}
+ else if(r===0&&!out.extra){dr='•';dt='Dot ball';}
+ else{dr=`${r}`;dt=r===1?'Single taken':r===2?'Two runs!':r===3?'THREE runs!':'';}
+ if(out.extra)dt=(dt?dt+' · ':'')+out.extra;
+ el.style.display='block';el.className='ball-result'+(out.wkt?' wkt':'');
+ el.innerHTML=`<div class="res-runs${out.wkt?' wkt':''}">${dr}</div><div class="res-txt">${dt}</div>`;
+}
+function clearBRes(){document.getElementById('brespop').style.display='none';document.getElementById('delinf').style.display='none';}
+function addComm(txt){
+ const box=document.getElementById('cbox');
+ box.querySelectorAll('.comm-line.new').forEach(l=>l.classList.remove('new'));
+ const l=document.createElement('div');l.className='comm-line new';l.textContent=txt;
+ box.insertBefore(l,box.firstChild);
+ while(box.children.length>3)box.removeChild(box.lastChild);
+}
+function mkComm(del,sid,out){
+ const ci=M.inn[M.ci];const bt=teams[ci.bt];const bwTeam=teams[ci.bt===M.t1?M.t2:M.t1];
+ const bn=bt.players[M.bats[M.str]]?.name?.split(' ').pop()||'Batsman';
+ const wn=bwTeam.players[M.bwIdx]?.name?.split(' ').pop()||'Bowler';
+ const acts={drv_off:'drives beautifully through covers',drv_on:'on-drives elegantly',pull:'pulls hard',cut:'cuts fiercely',sweep:'sweeps',flick:'flicks off his pads',slog:'slog sweeps',loft:'lofts over mid-on',defend:'defends solidly'};
+ const act=acts[sid]||'plays';
+ if(out.wkt)return`🎉 WICKET! ${bn} is ${out.wtype}! Great ball from ${wn}!`;
+ if(out.runs===6)return`💥 SIX! ${bn} ${act}! Ball sails into the stands!`;
+ if(out.runs===4)return`🏏 FOUR! ${bn} ${act}! Racing to the boundary!`;
+ if(out.runs===0&&!out.extra){const dc=[`Excellent line from ${wn}, beaten!`,`${bn} ${act}. Dot ball.`,`Tight delivery from ${wn}. No run.`];return dc[Math.floor(Math.random()*dc.length)];}
+ if(out.extra==='Wide')return`Wide ball by ${wn}! Extra run added.`;
+ return`${bn} ${act} for ${out.runs} run${out.runs!==1?'s':''}.`;
+}
+function updateSBar(){
+ const ci=M.inn[M.ci];const bt=teams[ci.bt];
+ const ov=Math.floor(ci.balls/6),bl=ci.balls%6;
+ document.getElementById('sbsc').textContent=`${ci.runs}/${ci.wkts}`;
+ document.getElementById('sbov').textContent=`${ov}.${bl} ov`;
+ document.getElementById('sbn').textContent=`${bt?.flag||''} ${bt?.abbr||''}`;
+ const rr=ci.balls>0?(ci.runs/(ci.balls/6)).toFixed(2):'0.00';
+ document.getElementById('sbrr').textContent=`RR: ${rr}`;
+ const tgt=document.getElementById('sbtgt'),rrr=document.getElementById('sbrrr');
+ if(M.ci===1){
+  const need=M.inn[0].runs+1-ci.runs;
+  const rem=M.maxOv-ov-bl/6;
+  const rrate=rem>0?(need/rem).toFixed(2):'∞';
+  tgt.textContent=`Need ${Math.max(0,need)} (${Math.round(Math.max(0,rem)*6)} balls)`;
+  rrr.textContent=`RRR: ${rrate}`;
+ }else{tgt.textContent='';rrr.textContent='';}
+}
+function updateBI(){
+ const ci=M.inn[M.ci];
+ const b0=ci.batsmen[M.bats[0]],b1=ci.batsmen[M.bats[1]];
+ const fmt=(b,str,side)=>{
+  if(!b)return '';
+  const s=side==='right'?'text-align:right':'';
+  return `<div class="bat-info${str?' on-strike':''}" style="${s}"><div class="name">${str?'▶ ':''}${b.name.split(' ').slice(-1)[0]}</div><div class="stat">${b.runs}(${b.balls}) · ${b.fours}×4 ${b.sixes}×6</div></div>`;
+ };
+ document.getElementById('bi1').innerHTML=fmt(b0,M.str===0,'left');
+ document.getElementById('bi2').innerHTML=fmt(b1,M.str===1,'right');
+}
+function updateBowlInf(){
+ const ci=M.inn[M.ci];
+ const bwTeam=teams[ci.bt===M.t1?M.t2:M.t1];
+ const bw=bwTeam?.players[M.bwIdx];const be=ci.bowlers[M.bwIdx];
+ if(!bw||!be)return;
+ const tb=be.overs*6+be.balls;
+ document.getElementById('bowlname').textContent=`${bw.name} ${Math.floor(tb/6)}.${tb%6}-${be.runs}-${be.wkts}`;
+ const ob=document.getElementById('overBalls');ob.innerHTML='';
+ M.curOv.forEach(b=>{
+  const d=document.createElement('div');d.className='ob';
+  if(b==='W'){d.classList.add('wkt');d.textContent='W';}
+  else if(b==='4'){d.classList.add('four');d.textContent='4';}
+  else if(b==='6'){d.classList.add('six');d.textContent='6';}
+  else if(b==='0'){d.classList.add('dot');}
+  else if(b.includes('W')||b.includes('N')){d.classList.add('extra');d.textContent=b;}
+  else{d.textContent=b;}
+  ob.appendChild(d);
+ });
+}
+function renderShots(){
+ const g=document.getElementById('shotGrid');g.innerHTML='';
+ SHOTS.forEach(s=>{
+  const b=document.createElement('div');b.className='shot-btn';
+  b.innerHTML=`<span class="ico">${s.ic}</span>${s.lb}`;
+  b.onclick=()=>{if(M.phase!=='shown'||!M.plrBat)return;M.phase='res';deliverBall(s.id);};
+  g.appendChild(b);
+ });
+}
+
+// ===================== PEEK PLAYERS =====================
+function peekCard(){
+ document.getElementById('gamePanel').classList.add('off');
+ document.getElementById('playerCardPanel').classList.add('on');
+ const list=document.getElementById('peekList');list.innerHTML='';
+ const ci=M.inn[M.ci];const bt=teams[ci.bt];
+ bt.players.forEach((p,pi)=>{
+  const item=document.createElement('div');item.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid #ffffff08;cursor:pointer';
+  const cv=document.createElement('canvas');cv.width=32;cv.height=32;cv.style='width:32px;height:32px;border-radius:50%;border:1.5px solid #ffffff22;flex-shrink:0';
+  const role=p.wk?'WK':p.role;
+  const batInfo=ci.batsmen[pi];
+  const sc=batInfo?` · ${batInfo.runs}(${batInfo.balls})`:'';
+  item.innerHTML+=`<div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div><div style="font-size:9px;color:#666">${role}${sc}</div></div>`;
+  item.insertBefore(cv,item.firstChild);
+  setTimeout(()=>drawAvatar(cv,p,ci.bt,32),0);
+  item.onclick=()=>{
+   document.querySelectorAll('#peekList>div').forEach(d=>d.style.background='');
+   item.style.background='#ffd70010';
+   // Show mini card in a modal
+   showPeekDetail(p,ci.bt);
+  };
+  list.appendChild(item);
+ });
+}
+function showPeekDetail(player,teamIdx){
+ let existing=document.getElementById('peekDetailModal');
+ if(!existing){
+  existing=document.createElement('div');
+  existing.id='peekDetailModal';
+  existing.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,.85);z-index:50;display:flex;align-items:center;justify-content:center';
+  document.getElementById('s-match').appendChild(existing);
+ }
+ existing.innerHTML=`<div style="background:#0d1523;border-radius:12px;border:1px solid #ffd70044;width:90%;max-width:340px;max-height:90%;overflow-y:auto;position:relative">
+  <button onclick="document.getElementById('peekDetailModal').remove()" style="position:absolute;top:8px;right:8px;background:none;border:none;color:#666;font-size:18px;cursor:pointer">✕</button>
+  <div id="peekDetailInner"></div>
+ </div>`;
+ renderPlayerCard(player,teamIdx,existing.querySelector('#peekDetailInner'));
+ existing.style.display='flex';
+}
+function closePeek(){
+ document.getElementById('gamePanel').classList.remove('off');
+ document.getElementById('playerCardPanel').classList.remove('on');
+}
+
+// ===================== PROFILES SCREEN =====================
+function gotoProfiles(){
+ go('s-profile');
+ const inner=document.getElementById('pListInner');inner.innerHTML='';
+ teams.forEach((t,ti)=>{
+  const grp=document.createElement('div');
+  grp.innerHTML=`<div style="padding:7px 10px;background:#0d1523;border-bottom:1px solid #ffffff11;font-size:10px;font-weight:bold;color:#888;text-transform:uppercase;letter-spacing:1px">${t.flag} ${t.name}</div>`;
+  t.players.forEach((p,pi)=>{
+   const item=document.createElement('div');item.className='p-list-item';
+   const cv=document.createElement('canvas');cv.className='p-list-avatar';cv.width=32;cv.height=32;
+   item.appendChild(cv);
+   const meta=document.createElement('div');meta.style='flex:1;min-width:0';
+   const role=p.wk?'WK':p.role;
+   meta.innerHTML=`<div class="p-list-name">${p.name}</div><div class="p-list-meta">${role} · Bat ${p.bat} · Bowl ${p.bowl}</div>`;
+   item.appendChild(meta);
+   setTimeout(()=>drawAvatar(cv,p,ti,32),0);
+   item.onclick=()=>{
+    document.querySelectorAll('.p-list-item').forEach(i=>i.classList.remove('sel'));
+    item.classList.add('sel');
+    showProfileDetail(p,ti);
+   };
+   grp.appendChild(item);
+  });
+  inner.appendChild(grp);
+ });
+}
+function showProfileDetail(player,teamIdx){
+ const d=document.getElementById('profileContent');
+ renderPlayerCard(player,teamIdx,d);
+ // Big avatar
+ const bigWrap=document.createElement('div');bigWrap.className='big-avatar';
+ const bigCv=document.createElement('canvas');bigCv.width=90;bigCv.height=90;
+ bigWrap.appendChild(bigCv);
+ d.insertBefore(bigWrap,d.firstChild);
+ setTimeout(()=>drawAvatar(bigCv,player,teamIdx,90),0);
+ // Radar chart
+ const radarWrap=document.createElement('div');radarWrap.className='radar-wrap';
+ const rCv=document.createElement('canvas');rCv.id='radarCanvas';rCv.width=180;rCv.height=150;
+ radarWrap.appendChild(rCv);
+ d.appendChild(radarWrap);
+ setTimeout(()=>drawRadar(rCv,player),50);
+}
+function drawRadar(cv,player){
+ const ctx=cv.getContext('2d');const w=cv.width,h=cv.height;
+ ctx.clearRect(0,0,w,h);
+ const cx=w/2,cy=h/2+10,r=Math.min(w,h)*.38;
+ const attrs=[
+  {lb:'Batting',val:player.bat},
+  {lb:'Bowling',val:player.bowl},
+  {lb:'Aggression',val:player.traits?.aggression||70},
+  {lb:'Consistency',val:player.traits?.consistency||70},
+  {lb:'Pressure',val:player.traits?.pressure||70},
+  {lb:'Fitness',val:player.traits?.fitness||70}
+ ];
+ const n=attrs.length;
+ // Grid
+ [.2,.4,.6,.8,1].forEach(scale=>{
+  ctx.strokeStyle=`rgba(255,255,255,${scale*.15+.05})`;ctx.lineWidth=.8;
+  ctx.beginPath();
+  for(let i=0;i<n;i++){
+   const a=(i/n)*Math.PI*2-Math.PI/2;
+   const x=cx+Math.cos(a)*r*scale,y=cy+Math.sin(a)*r*scale;
+   i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.closePath();ctx.stroke();
+ });
+ // Axes
+ for(let i=0;i<n;i++){
+  const a=(i/n)*Math.PI*2-Math.PI/2;
+  ctx.strokeStyle='rgba(255,255,255,.15)';ctx.lineWidth=.8;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.7)';ctx.font=`bold 9px Arial`;ctx.textAlign='center';
+  const lx=cx+Math.cos(a)*(r+18),ly=cy+Math.sin(a)*(r+12)+3;
+  ctx.fillText(attrs[i].lb,lx,ly);
+ }
+ // Fill
+ ctx.beginPath();
+ for(let i=0;i<n;i++){
+  const a=(i/n)*Math.PI*2-Math.PI/2;
+  const v=attrs[i].val/100;
+  const x=cx+Math.cos(a)*r*v,y=cy+Math.sin(a)*r*v;
+  i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+ }
+ ctx.closePath();
+ ctx.fillStyle='rgba(255,215,0,.18)';ctx.fill();
+ ctx.strokeStyle='rgba(255,215,0,.8)';ctx.lineWidth=1.5;ctx.stroke();
+ // Points
+ for(let i=0;i<n;i++){
+  const a=(i/n)*Math.PI*2-Math.PI/2;
+  const v=attrs[i].val/100;
+  ctx.fillStyle='#ffd700';ctx.beginPath();ctx.arc(cx+Math.cos(a)*r*v,cy+Math.sin(a)*r*v,3,0,Math.PI*2);ctx.fill();
+ }
+}
+
+// ===================== SETUP =====================
+function renderTCards(){
+ ['tc1','tc2'].forEach((id,ci)=>{
+  const el=document.getElementById(id);el.innerHTML='';
+  teams.forEach((t,ti)=>{
+   const card=document.createElement('div');
+   card.className='t-card'+(ti===(ci===0?M.t1:M.t2)?' sel':'');
+   card.innerHTML=`<div class="flag">${t.flag}</div><div><div class="tname">${t.name}</div><div class="tabbr">${t.abbr}</div></div>`;
+   card.onclick=()=>{if(ci===0)M.t1=ti;else M.t2=ti;renderTCards();updateSelectedTeams();};
+   el.appendChild(card);
+  });
+ });
+ updateSelectedTeams();
+}
+function updateSelectedTeams(){
+ const t1=teams[M.t1],t2=teams[M.t2];
+ const el=document.getElementById('selectedTeams');
+ if(M.t1===M.t2){el.innerHTML='<span style="color:#ff8888">Please select different teams</span>';return;}
+ el.innerHTML=`${t1.flag} ${t1.name} <span style="color:#ffd700">vs</span> ${t2.flag} ${t2.name}`;
+}
+function setFmt(el,fmt){
+ document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.remove('sel'));
+ el.classList.add('sel');M.fmt=fmt;M.maxOv=fmt==='T20'?20:fmt==='ODI'?50:90;
+}
+function gotoSetup(){resetM();renderTCards();go('s-setup');}
+function beginToss(){
+ if(M.t1===M.t2){alert('Please pick different teams!');return;}
+ go('s-toss');
+ document.getElementById('tmsg').textContent=`${teams[M.t1].name} calls the toss!`;
+ document.getElementById('tchoice-btns').style.display='flex';
+ document.getElementById('tbf-btns').style.display='none';
+ document.getElementById('coin').textContent='🏏';
+ document.getElementById('coin').classList.remove('spin');
+}
+function doToss(call){
+ const coin=document.getElementById('coin');
+ coin.classList.remove('spin');void coin.offsetWidth;coin.classList.add('spin');
+ const res=Math.random()<.5?'heads':'tails';const won=call===res;M.tw=won?M.t1:M.t2;
+ setTimeout(()=>{
+  coin.textContent=res==='heads'?'🏏':'⭕';
+  document.getElementById('tres').textContent=`${teams[M.tw].name} won the toss!${M.tw===M.t1?' (You won!)':''}`;
+  document.getElementById('tchoice-btns').style.display='none';
+  document.getElementById('tbf-btns').style.display='block';
+ },1100);
+}
+function pickBatBowl(choice){
+ if(M.tw===M.t1){
+  if(choice==='bat'){M.inn[0].bt=M.t1;M.inn[1].bt=M.t2;M.plrBat=true;}
+  else{M.inn[0].bt=M.t2;M.inn[1].bt=M.t1;M.plrBat=false;}
+ }else{
+  const aiC=Math.random()<.6?'bat':'bowl';
+  if(aiC==='bat'){M.inn[0].bt=M.t2;M.inn[1].bt=M.t1;M.plrBat=false;}
+  else{M.inn[0].bt=M.t1;M.inn[1].bt=M.t2;M.plrBat=true;}
+ }
+ go('s-match');
+ setTimeout(()=>{
+  initCanvas();initBatting();
+  document.getElementById('gamePanel').classList.remove('off');
+  document.getElementById('playerCardPanel').classList.remove('on');
+  if(M.plrBat){
+   document.getElementById('shotGrid').style.display='grid';
+   document.getElementById('bowlGrid').style.display='none';
+   renderShots();prepDel();
+  }else{showBowlPanelFn();}
+  addComm(`Match begins! ${teams[M.inn[0].bt].name} bat first. ${teams[M.inn[1].bt].name} to bowl.`);
+ },200);
+}
+
+// ===================== MENU CANVAS =====================
+function drawMenuBg(){
+ const cv=document.getElementById('menuCanvas');
+ if(!cv.offsetWidth)return;
+ cv.width=cv.offsetWidth;cv.height=cv.offsetHeight;
+ const ctx=cv.getContext('2d'),w=cv.width,h=cv.height;
+ ctx.fillStyle='#060b10';ctx.fillRect(0,0,w,h);
+ // Stadium
+ ctx.fillStyle='#1d6b20';ctx.beginPath();ctx.ellipse(w/2,h*.55,w*.48,h*.42,0,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle='#ffffff18';ctx.lineWidth=1.5;
+ ctx.beginPath();ctx.ellipse(w/2,h*.55,w*.29,h*.25,0,0,Math.PI*2);ctx.stroke();
+ ctx.beginPath();ctx.ellipse(w/2,h*.55,w*.46,h*.4,0,0,Math.PI*2);ctx.stroke();
+ ctx.fillStyle='#c8a96e';ctx.fillRect(w/2-6,h*.28,12,h*.54);
+ // Floodlights
+ [[.08,.08],[.92,.08],[.05,.4],[.95,.4]].forEach(([fx,fy])=>{
+  ctx.fillStyle='#333';ctx.fillRect(fx*w-2,fy*h,4,h*.2);
+  const rg=ctx.createRadialGradient(fx*w,fy*h,0,fx*w,fy*h,w*.18);
+  rg.addColorStop(0,'rgba(255,230,150,.2)');rg.addColorStop(1,'transparent');
+  ctx.fillStyle=rg;ctx.fillRect(0,0,w,h);
+ });
+ // Stars
+ ctx.fillStyle='rgba(255,255,255,.5)';
+ for(let i=0;i<30;i++){ctx.fillRect(Math.random()*w,Math.random()*h*.25,Math.random()<.3?2:1,Math.random()<.3?2:1);}
+}
+
+// ===================== INIT =====================
+window.addEventListener('load',()=>{
+ setTimeout(drawMenuBg,60);
+ renderTCards();
+ window.addEventListener('resize',()=>{
+  const id=document.querySelector('.scr.on')?.id;
+  if(id==='s-match')initCanvas();
+  if(id==='s-menu')drawMenuBg();
+ });
+});
+document.addEventListener('touchstart',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
+</script>
+</body>
+</html>
